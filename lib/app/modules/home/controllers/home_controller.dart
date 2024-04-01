@@ -1,11 +1,12 @@
+import 'dart:math' as math;
+import 'dart:developer';
 import 'dart:async';
-import 'dart:math';
 
-import 'package:bkd_presence/app/models/user_model.dart';
-import 'package:bkd_presence/app/modules/home/provider/home_provider.dart';
-import 'package:bkd_presence/app/routes/app_pages.dart';
-import 'package:bkd_presence/app/themes/color_constants.dart';
-import 'package:bkd_presence/app/themes/constants.dart';
+import 'package:bpbd_presence/app/models/user_model.dart';
+import 'package:bpbd_presence/app/modules/home/provider/home_provider.dart';
+import 'package:bpbd_presence/app/routes/app_pages.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/themes/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -21,34 +22,16 @@ class HomeController extends GetxController with StateMixin<UserModel> {
   RxBool isLoading = false.obs;
   RxBool isWaiting = false.obs;
   RxInt selectedIndex = 0.obs;
-  late DateTime now;
-  late bool isMockLocation;
+  Rx<DateTime> now = DateTime.now().obs;
+
+  RxBool isMockLocation = false.obs;
   late DateTime clockOut;
   late DateTime maximalLate;
   late DateTime attendanceStartHour;
 
-  late Duration difference;
   late CameraPosition cameraPosition;
   UserModel? user;
-  Future<Position> getUserCurrentLocation() async {
-    await Geolocator.requestPermission()
-        .then((value) {})
-        .onError((error, stackTrace) async {
-      await Geolocator.requestPermission();
-    });
-    Position positon = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        forceAndroidLocationManager: true);
-    return positon;
-  }
-
-  Future<bool> mockGpsChecker() async {
-    bool isMock = await getUserCurrentLocation().then((value) {
-      return value.isMocked;
-    });
-    return isMockLocation = isMock;
-  }
-
+  // mengecek posisi user
   Future<Position> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -73,18 +56,16 @@ class HomeController extends GetxController with StateMixin<UserModel> {
   }
 
   // check distance with haversine formula
-  double sphericalLawOfCosines(
-      double lat1, double lon1, double lat2, double lon2) {
-    var latToRad1 = lat1 * (pi / 180);
-    var latToRad2 = lat2 * (pi / 180);
-    var lonToRad1 = lon1 * (pi / 180);
-    var lonToRad2 = lon2 * (pi / 180);
-    var d = acos(sin(latToRad1) * sin(latToRad2) +
-        cos(latToRad1) * cos(latToRad2) * cos(lonToRad2 - lonToRad1));
-    return d * 6371 * 1000;
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    var p = 0.017453292519943295; // Math.PI / 180
+    var c = math.cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * math.asin(math.sqrt(a)); // 2 * R; R = 6371 km
   }
 
-  void checkLocationChanges() {
+  checkLocationChanges() {
     Geolocator.getPositionStream(
         locationSettings: AndroidSettings(
       accuracy: LocationAccuracy.high,
@@ -92,19 +73,23 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     )).listen((Position position) async {
       latitude.value = position.latitude;
       longitude.value = position.longitude;
+      isMockLocation.value = position.isMocked;
+      cameraPosition = CameraPosition(
+        target: LatLng(position.latitude, position.longitude),
+        zoom: 17,
+      );
       try {
-        final mock = await mockGpsChecker();
         final userPresence = state?.data?.presences?.first;
 
         if (userPresence?.attendanceClock == null) {
-          final distance = sphericalLawOfCosines(Constants.latitude,
+          final distance = calculateDistance(Constants.latitude,
               Constants.longitude, position.latitude, position.longitude);
-          final isLate = now.isAfter(Constants.maxAttendanceHour);
+          final isLate = now.value.isAfter(Constants.maxAttendanceHour);
           final entryStatus = isLate ? 'TERLAMBAT' : 'HADIR';
           if (distance <= Constants.maxAttendanceDistance &&
-              !mock &&
-              attendanceStartHour.isAfter(now) &&
-              maximalLate.isBefore(now)) {
+              isMockLocation.value == false &&
+              now.value.isAfter(attendanceStartHour) &&
+              now.value.isBefore(maximalLate)) {
             if (state != null) {
               change(null, status: RxStatus.loading());
             }
@@ -125,7 +110,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
               borderRadius: 8,
               duration: const Duration(seconds: 3),
             );
-          } else if (mock) {
+          } else if (isMockLocation.value == true) {
             Get.rawSnackbar(
               message: 'Anda terdeteksi menggunakan fake GPS',
               backgroundColor: ColorConstants.redColor,
@@ -142,11 +127,12 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     });
   }
 
+  // send attendance in to server
   Future sendAttendanceToServer(
       int id, Position position, String entryStatus) async {
-    final attendanceClock = DateFormat('HH:mm:ss').format(now);
+    final attendanceClock = DateFormat('HH:mm:ss').format(now.value);
     final entryPosition = "${position.latitude}, ${position.longitude}";
-    final entryDistance = sphericalLawOfCosines(Constants.latitude,
+    final entryDistance = calculateDistance(Constants.latitude,
         Constants.longitude, position.latitude, position.longitude);
 
     final presence = await _homeProvider.presenceIn(
@@ -161,12 +147,13 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     return presence;
   }
 
+  // send attendance out to server
   presenceOut() async {
     final userPresence = state?.data?.presences?.first;
-    final exitDistance = sphericalLawOfCosines(Constants.latitude,
+    final exitDistance = calculateDistance(Constants.latitude,
         Constants.longitude, latitude.value, longitude.value);
     var body = {
-      "attendance_clock_out": DateFormat('HH:mm:ss').format(now),
+      "attendance_clock_out": DateFormat('HH:mm:ss').format(now.value),
       "attendance_exit_status": "HADIR",
       "exit_position": "${latitude.value}, ${longitude.value}",
       "exit_distance": exitDistance,
@@ -200,20 +187,16 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     }
   }
 
+  // get user data
   getUser() async {
     change(null, status: RxStatus.loading());
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     try {
       final user = await _homeProvider.getUsers();
-      Constants.latitude = double.parse(user!.data!.user!.office!.latitude!);
-      Constants.longitude = double.parse(user.data!.user!.office!.longitude!);
-      Constants.maxAttendanceDistance =
-          double.parse(user.data!.user!.office!.radius!);
       change(user, status: RxStatus.success());
       this.user = user;
-
-      if (user.data?.user?.deviceId == null && token != null) {
+      if (user!.data?.user?.deviceId == null && token != null) {
         await _homeProvider.logout();
         prefs.clear();
         Get.dialog(
@@ -237,6 +220,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     }
   }
 
+  // format date to indonesian format
   Future<String> formatDate(String date) async {
     DateTime dateTime = DateTime.parse(date);
     String formattedDate =
@@ -245,6 +229,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     return formattedDate;
   }
 
+  // format time to indonesian format
   Future<DateTime> fetchTime() async {
     var response = await _homeProvider.fetchTime();
     var dateTimeString = response['dateTime'];
@@ -256,11 +241,12 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     return formattedDateTime;
   }
 
+  // presence in checker
   Future<void> presenceOutChecker() async {
-    await mockGpsChecker();
-    var distance = sphericalLawOfCosines(Constants.latitude,
-        Constants.longitude, latitude.value, longitude.value);
-    if (now.weekday == DateTime.saturday || now.weekday == DateTime.sunday) {
+    var distance = calculateDistance(Constants.latitude, Constants.longitude,
+        latitude.value, longitude.value);
+    if (now.value.weekday == DateTime.saturday ||
+        now.value.weekday == DateTime.sunday) {
       Get.rawSnackbar(
         message: 'Anda tidak dapat melakukan presensi karena ini hari libur',
         backgroundColor: ColorConstants.redColor,
@@ -278,17 +264,27 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );
-    } else if (now.isBefore(clockOut)) {
+    } else if (state?.data?.presences?.first.attendanceExitStatus != null) {
       Get.rawSnackbar(
-        message:
-            'Anda tidak dapat melakukan presensi keluar karena belum jam 15.30',
+        message: 'Anda sudah melakukan presensi keluar',
         backgroundColor: ColorConstants.redColor,
         margin: const EdgeInsets.all(16),
         borderRadius: 8,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );
-    } else if (isMockLocation == true) {
+    } else if (now.value.isBefore(clockOut)) {
+      final dateFormat = DateFormat('HH:mm').format(clockOut);
+      Get.rawSnackbar(
+        message:
+            'Anda tidak dapat melakukan presensi keluar karena belum jam $dateFormat',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (isMockLocation.value == true) {
       Get.rawSnackbar(
         message: 'Anda Terdeteksi Menggunakan Fake GPS',
         backgroundColor: ColorConstants.redColor,
@@ -297,8 +293,8 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );
-    } else if (isMockLocation == false &&
-        now.isAfter(clockOut) &&
+    } else if (isMockLocation.value == false &&
+        now.value.isAfter(clockOut) &&
         distance <= Constants.maxAttendanceDistance) {
       await presenceOut();
     } else {
@@ -313,28 +309,46 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     }
   }
 
+  // parsing hour attendance
   Future hourAttendance() async {
-    clockOut = DateTime(now.year, now.month, now.day, 15, 30, 0);
-    Constants.maxAttendanceHour =
-        DateTime(now.year, now.month, now.day, 8, 0, 0);
-    maximalLate = DateTime(now.year, now.month, now.day, 8, 45, 0);
-    attendanceStartHour = DateTime(now.year, now.month, now.day, 7, 0, 0);
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    var today = dateFormat.format(now.value);
+    DateTime startHour =
+        DateTime.parse('$today ${state?.data!.user!.office!.startWork!}');
+    DateTime startBreakHour =
+        DateTime.parse('$today ${state?.data!.user!.office!.startBreak!}');
+    DateTime lateTolerance =
+        DateTime.parse('$today ${state?.data!.user!.office!.lateTolerance!}');
+    DateTime endHour =
+        DateTime.parse('$today ${state?.data!.user!.office!.endWork!}');
+    attendanceStartHour = DateTime(now.value.year, now.value.month,
+        now.value.day, startHour.hour, startHour.minute, startHour.second);
+    Constants.maxAttendanceHour = DateTime(
+        now.value.year,
+        now.value.month,
+        now.value.day,
+        startBreakHour.hour,
+        startBreakHour.minute,
+        startBreakHour.second);
+    maximalLate = DateTime(now.value.year, now.value.month, now.value.day,
+        lateTolerance.hour, lateTolerance.minute, lateTolerance.second);
+    clockOut = DateTime(now.value.year, now.value.month, now.value.day,
+        endHour.hour, endHour.minute, endHour.second);
   }
 
   @override
   void onInit() async {
     isLoading.value = true;
-    isWaiting.value = true;
-    now = await fetchTime();
+    await getUser();
+    now.value = await fetchTime();
+    log("now ${now.value}");
     await hourAttendance();
     Timer.periodic(const Duration(seconds: 1), (timer) {
-      now = now.add(const Duration(seconds: 1));
+      now.value = now.value.add(const Duration(seconds: 1));
     });
-    await getUser();
-    isWaiting.value = false;
+    clockOut = DateTime.now();
     checkLocationChanges();
-    await determinePosition().then((value) async {
-      difference = now.difference(value.timestamp!);
+    await determinePosition().then((value) {
       cameraPosition = CameraPosition(
         target: LatLng(value.latitude, value.longitude),
         zoom: 14,

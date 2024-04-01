@@ -1,4 +1,4 @@
-import 'package:bkd_presence/app/modules/vacation/provider/vacation_provider.dart';
+import 'package:bpbd_presence/app/modules/vacation/provider/vacation_provider.dart';
 import 'package:get/get.dart';
 
 import '../controllers/vacation_controller.dart';

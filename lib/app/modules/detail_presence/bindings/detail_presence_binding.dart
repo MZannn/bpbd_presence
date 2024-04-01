@@ -1,4 +1,4 @@
-import 'package:bkd_presence/app/modules/detail_presence/provider/detail_presence_provider.dart';
+import 'package:bpbd_presence/app/modules/detail_presence/provider/detail_presence_provider.dart';
 import 'package:get/get.dart';
 
 import '../controllers/detail_presence_controller.dart';

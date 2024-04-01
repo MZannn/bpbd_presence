@@ -1,6 +1,6 @@
 {
-    "name": "bkd_presence",
-    "short_name": "bkd_presence",
+    "name": "bpbd_presence",
+    "short_name": "bpbd_presence",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

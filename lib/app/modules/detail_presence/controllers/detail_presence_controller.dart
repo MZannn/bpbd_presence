@@ -1,6 +1,6 @@
-import 'package:bkd_presence/app/models/detail_presence_model.dart';
+import 'package:bpbd_presence/app/models/detail_presence_model.dart';
 
-import 'package:bkd_presence/app/modules/detail_presence/provider/detail_presence_provider.dart';
+import 'package:bpbd_presence/app/modules/detail_presence/provider/detail_presence_provider.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 

@@ -1,7 +1,7 @@
-import 'package:bkd_presence/app/models/user_model.dart';
-import 'package:bkd_presence/app/routes/app_pages.dart';
-import 'package:bkd_presence/app/themes/color_constants.dart';
-import 'package:bkd_presence/app/themes/themes.dart';
+import 'package:bpbd_presence/app/models/user_model.dart';
+import 'package:bpbd_presence/app/routes/app_pages.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/themes/themes.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -127,13 +127,19 @@ class ProfileView extends GetView<ProfileController> {
                         '${user?.data?.user?.position}',
                         style:
                             textTheme.bodyMedium!.copyWith(color: Colors.white),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(
                         height: 6,
                       ),
-                      Text(
-                        '${user?.data?.user?.name}',
-                        style: textTheme.titleMedium,
+                      Flexible(
+                        child: Text(
+                          '${user?.data?.user?.name}',
+                          style: textTheme.titleMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(
                         height: 6,
@@ -153,37 +159,36 @@ class ProfileView extends GetView<ProfileController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InkWell(
-                        onTap: () {
-                          Get.toNamed(Routes.permission, arguments: {
-                            'employee_id': user?.data?.user?.nip,
-                            'office_id': user?.data?.user?.officeId,
-                            'presence_id': user?.data?.presences?.first.id,
-                            'date': user?.data?.presences?.first.presenceDate,
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(Icons.coronavirus),
-                            const SizedBox(
-                              width: 12,
-                            ),
-                            Text(
-                              "Izin atau Sakit",
-                              style: textTheme.bodyLarge!.copyWith(
-                                color: const Color(0xFF383838),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
+                      // InkWell(
+                      //   onTap: () {
+                      //     Get.toNamed(Routes.permission, arguments: {
+                      //       'nip': user?.data?.user?.nip,
+                      //       'office_id': user?.data?.user?.officeId,
+                      //       'presence_id': user?.data?.presences?.first.id,
+                      //     });
+                      //   },
+                      //   child: Row(
+                      //     children: [
+                      //       const Icon(Icons.coronavirus),
+                      //       const SizedBox(
+                      //         width: 12,
+                      //       ),
+                      //       Text(
+                      //         "Izin atau Sakit",
+                      //         style: textTheme.bodyLarge!.copyWith(
+                      //           color: const Color(0xFF383838),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // const SizedBox(
+                      //   height: 16,
+                      // ),
                       InkWell(
                         onTap: () {
                           Get.toNamed(Routes.bussinessTrip, arguments: {
-                            'employee_id': user?.data?.user?.nip,
+                            'nip': user?.data?.user?.nip,
                             'office_id': user?.data?.user?.officeId,
                             'presence_id': user?.data?.presences?.first.id,
                           });
@@ -195,7 +200,7 @@ class ProfileView extends GetView<ProfileController> {
                               width: 12,
                             ),
                             Text(
-                              "Presensi Darurat",
+                              "Perjalanan Dinas",
                               style: textTheme.bodyLarge!.copyWith(
                                 color: const Color(0xFF383838),
                               ),
@@ -209,9 +214,10 @@ class ProfileView extends GetView<ProfileController> {
                       InkWell(
                         onTap: () {
                           Get.toNamed(Routes.vacation, arguments: {
-                            'employee_id': user?.data?.user?.nip,
+                            'nip': user?.data?.user?.nip,
                             'office_id': user?.data?.user?.officeId,
                             'presence_id': user?.data?.presences?.first.id,
+                            'leave_rules': user?.data?.leaveRules,
                           });
                         },
                         child: Row(

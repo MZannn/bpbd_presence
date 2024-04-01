@@ -1,5 +1,5 @@
-import 'package:bkd_presence/app/models/presences_model.dart';
-import 'package:bkd_presence/app/modules/presence_history/provider/presence_history_provider.dart';
+import 'package:bpbd_presence/app/models/presences_model.dart';
+import 'package:bpbd_presence/app/modules/presence_history/provider/presence_history_provider.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 

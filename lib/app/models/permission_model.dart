@@ -22,7 +22,7 @@ class PermissionModel {
 
 class Data {
   Data({
-    this.employeeId,
+    this.nip,
     this.officeId,
     this.presenceId,
     this.date,
@@ -30,7 +30,7 @@ class Data {
     this.id,
   });
 
-  String? employeeId;
+  String? nip;
   String? officeId;
   String? presenceId;
   DateTime? date;
@@ -38,7 +38,7 @@ class Data {
   int? id;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        employeeId: json["employee_id"],
+        nip: json["nip"],
         officeId: json["office_id"],
         presenceId: json["presence_id"],
         date: json["date"] == null ? null : DateTime.parse(json["date"]),

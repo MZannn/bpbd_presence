@@ -1,6 +1,6 @@
-import 'package:bkd_presence/app/themes/color_constants.dart';
-import 'package:bkd_presence/app/themes/themes.dart';
-import 'package:bkd_presence/app/widgets/custom_app_bar.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/themes/themes.dart';
+import 'package:bpbd_presence/app/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -79,21 +79,23 @@ class DetailPresenceView extends GetView<DetailPresenceController> {
                                 'Status Kehadiran : ',
                                 style: textTheme.labelSmall,
                               ),
-                              Text(
-                                state?.data?.detailPresence
-                                        ?.attendanceEntryStatus
-                                        ?.toUpperCase() ??
-                                    "-",
-                                style: state?.data?.detailPresence
-                                            ?.attendanceEntryStatus ==
-                                        "Terlambat"
-                                    ? textTheme.labelSmall!.copyWith(
-                                        color: ColorConstants.redColor,
-                                        fontWeight: FontWeight.w700,
-                                      )
-                                    : textTheme.labelSmall!.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                              Flexible(
+                                child: Text(
+                                  state?.data?.detailPresence
+                                          ?.attendanceEntryStatus
+                                          ?.toUpperCase() ??
+                                      "-",
+                                  style: state?.data?.detailPresence
+                                              ?.attendanceEntryStatus ==
+                                          "TERLAMBAT"
+                                      ? textTheme.labelSmall!.copyWith(
+                                          color: ColorConstants.redColor,
+                                          fontWeight: FontWeight.w700,
+                                        )
+                                      : textTheme.labelSmall!.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                ),
                               ),
                             ],
                           ),
@@ -107,10 +109,12 @@ class DetailPresenceView extends GetView<DetailPresenceController> {
                                 'Lokasi Kehadiran : ',
                                 style: textTheme.labelSmall,
                               ),
-                              Text(
-                                state?.data?.detailPresence?.entryPosition ??
-                                    "-",
-                                style: textTheme.labelSmall,
+                              Flexible(
+                                child: Text(
+                                  state?.data?.detailPresence?.entryPosition ??
+                                      "-",
+                                  style: textTheme.labelSmall,
+                                ),
                               ),
                             ],
                           ),
@@ -165,13 +169,15 @@ class DetailPresenceView extends GetView<DetailPresenceController> {
                                 'Status Kehadiran : ',
                                 style: textTheme.labelSmall,
                               ),
-                              Text(
-                                state?.data?.detailPresence
-                                        ?.attendanceExitStatus
-                                        ?.toUpperCase() ??
-                                    "-",
-                                style: textTheme.labelSmall!.copyWith(
-                                  fontWeight: FontWeight.w700,
+                              Flexible(
+                                child: Text(
+                                  state?.data?.detailPresence
+                                          ?.attendanceExitStatus
+                                          ?.toUpperCase() ??
+                                      "-",
+                                  style: textTheme.labelSmall!.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ],
@@ -186,10 +192,12 @@ class DetailPresenceView extends GetView<DetailPresenceController> {
                                 'Lokasi Kehadiran : ',
                                 style: textTheme.labelSmall,
                               ),
-                              Text(
-                                state?.data?.detailPresence?.exitPosition ??
-                                    "-",
-                                style: textTheme.labelSmall,
+                              Flexible(
+                                child: Text(
+                                  state?.data?.detailPresence?.exitPosition ??
+                                      "-",
+                                  style: textTheme.labelSmall,
+                                ),
                               ),
                             ],
                           ),

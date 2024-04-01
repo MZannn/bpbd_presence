@@ -1,7 +1,7 @@
-import 'package:bkd_presence/app/themes/color_constants.dart';
-import 'package:bkd_presence/app/themes/themes.dart';
-import 'package:bkd_presence/app/widgets/button.dart';
-import 'package:bkd_presence/app/widgets/custom_app_bar.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/themes/themes.dart';
+import 'package:bpbd_presence/app/widgets/button.dart';
+import 'package:bpbd_presence/app/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -16,7 +16,7 @@ class BussinessTripView extends GetView<BussinessTripController> {
     final formKey = GlobalKey<FormState>();
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Presensi Darurat',
+        title: 'Perjalanan Dinas',
       ),
       body: Obx(
         () {
@@ -32,6 +32,108 @@ class BussinessTripView extends GetView<BussinessTripController> {
               key: formKey,
               child: Column(
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 115,
+                        child: Text(
+                          "Tanggal Dimulai",
+                          style: textTheme.bodySmall!
+                              .copyWith(color: Colors.black),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 12,
+                        child: Text(
+                          ":",
+                          style: textTheme.bodySmall!
+                              .copyWith(color: Colors.black),
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          readOnly: true,
+                          controller: controller.startDateController,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 0,
+                              horizontal: 10,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            hintText: 'Tanggal Dimulai',
+                            suffixIcon:
+                                const Icon(Icons.calendar_month_outlined),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Tanggal dimulai tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                          onTap: () {
+                            controller.selectStartDate(context);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 115,
+                        child: Text(
+                          "Tanggal Berakhir",
+                          style: textTheme.bodySmall!
+                              .copyWith(color: Colors.black),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 12,
+                        child: Text(
+                          ":",
+                          style: textTheme.bodySmall!
+                              .copyWith(color: Colors.black),
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          readOnly: true,
+                          controller: controller.endDateController,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 0,
+                              horizontal: 10,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            hintText: 'Tanggal Berakhir',
+                            suffixIcon:
+                                const Icon(Icons.calendar_month_outlined),
+                          ),
+                          onTap: () {
+                            controller.selectEndDate(context);
+                          },
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Tanggal berakhir tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [

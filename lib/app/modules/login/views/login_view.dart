@@ -1,5 +1,5 @@
-import 'package:bkd_presence/app/themes/themes.dart';
-import 'package:bkd_presence/app/widgets/button.dart';
+import 'package:bpbd_presence/app/themes/themes.dart';
+import 'package:bpbd_presence/app/widgets/button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -31,15 +31,15 @@ class LoginView extends GetView<LoginController> {
                       style: textTheme.titleLarge,
                     ),
                     Text(
-                      "Sistem Presensi Badan Penanggulangan Bencana Daerah Kabupaten Bogor",
+                      "Sistem Presensi Badan Kepegawaian Daerah Provinsi Kalimantan Tengah",
                       style: textTheme.bodyMedium,
                     ),
                   ],
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 24),
-                  height: 150,
-                  width: 150,
+                  height: 200,
+                  width: 200,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage("assets/images/bpbd.png"),

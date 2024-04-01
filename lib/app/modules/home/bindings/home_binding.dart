@@ -1,4 +1,4 @@
-import 'package:bkd_presence/app/modules/home/provider/home_provider.dart';
+import 'package:bpbd_presence/app/modules/home/provider/home_provider.dart';
 import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';

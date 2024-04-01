@@ -1,6 +1,6 @@
-import 'package:bkd_presence/app/modules/change_device/provider/change_device_provider.dart';
-import 'package:bkd_presence/app/routes/app_pages.dart';
-import 'package:bkd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/modules/change_device/provider/change_device_provider.dart';
+import 'package:bpbd_presence/app/routes/app_pages.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,7 +11,7 @@ class ChangeDeviceController extends GetxController {
 
   changeDevice() async {
     var body = {
-      'employee_id': Get.arguments[0],
+      'nip': Get.arguments[0],
       'office_id': Get.arguments[1],
       'reason': reasonController.text,
     };

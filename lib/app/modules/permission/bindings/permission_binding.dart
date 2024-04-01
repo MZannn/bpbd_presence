@@ -1,4 +1,4 @@
-import 'package:bkd_presence/app/modules/permission/provider/permission_provider.dart';
+import 'package:bpbd_presence/app/modules/permission/provider/permission_provider.dart';
 import 'package:get/get.dart';
 
 import '../controllers/permission_controller.dart';

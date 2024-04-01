@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:bkd_presence/app/services/api_service.dart';
-import 'package:bkd_presence/app/utils/typedef.dart';
+import 'package:bpbd_presence/app/services/api_service.dart';
+import 'package:bpbd_presence/app/utils/typedef.dart';
 import 'package:get/get.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -12,11 +12,12 @@ class VacationProvider {
 
   Future sendVacation(JSON body, File? file) async {
     final form = FormData({
-      'employee_id': body['employee_id'],
+      'nip': body['nip'],
       'office_id': body['office_id'],
       'presence_id': body['presence_id'],
       'start_date': body['start_date'],
       'end_date': body['end_date'],
+      'leave_type': body['leave_type'],
       'reason': body['reason'],
     });
     if (file != null) {

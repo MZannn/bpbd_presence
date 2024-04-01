@@ -1,5 +1,5 @@
-import 'package:bkd_presence/app/models/user_model.dart';
-import 'package:bkd_presence/app/services/api_service.dart';
+import 'package:bpbd_presence/app/models/user_model.dart';
+import 'package:bpbd_presence/app/services/api_service.dart';
 import 'package:get/get.dart';
 
 class HomeProvider extends GetConnect {

@@ -1,6 +1,6 @@
-import 'package:bkd_presence/app/modules/splash/controllers/splash_controller.dart';
-import 'package:bkd_presence/app/services/api_service.dart';
-import 'package:bkd_presence/app/services/base_provider.dart';
+import 'package:bpbd_presence/app/modules/splash/controllers/splash_controller.dart';
+import 'package:bpbd_presence/app/services/api_service.dart';
+import 'package:bpbd_presence/app/services/base_provider.dart';
 import 'package:get/get.dart';
 
 class GlobalBinding extends Bindings {

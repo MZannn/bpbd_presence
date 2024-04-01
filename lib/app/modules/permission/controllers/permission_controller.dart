@@ -1,16 +1,20 @@
 import 'dart:io';
 
-import 'package:bkd_presence/app/modules/permission/provider/permission_provider.dart';
-import 'package:bkd_presence/app/routes/app_pages.dart';
+import 'package:bpbd_presence/app/modules/permission/provider/permission_provider.dart';
+import 'package:bpbd_presence/app/routes/app_pages.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class PermissionController extends GetxController {
   final PermissionProvider _permissionProvider;
   PermissionController(this._permissionProvider);
   RxString fileName = ''.obs;
   File? file;
+  late TextEditingController startDateController;
+  late TextEditingController endDateController;
 
   Future pickFile() async {
     try {
@@ -47,6 +51,30 @@ class PermissionController extends GetxController {
     }
   }
 
+  Future<void> selectStartDate(BuildContext context) async {
+    MaterialLocalizations.of(context);
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(DateTime.now().year + 5),
+    );
+    if (picked != null) {
+      String formattedDate = DateFormat('yyyy-MM-dd').format(picked);
+      startDateController.text = formattedDate;
+      update();
+    } else {
+      Get.rawSnackbar(
+        message: 'Silahkan Pilih Tanggal',
+        backgroundColor: ColorConstants.redColor,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+        duration: const Duration(seconds: 3),
+      );
+    }
+  }
+
   delete() async {
     try {
       await file!.delete();
@@ -59,10 +87,11 @@ class PermissionController extends GetxController {
 
   Future sendPermission() async {
     var body = {
-      'employee_id': Get.arguments['employee_id'],
+      'nip': Get.arguments['nip'],
       'office_id': Get.arguments['office_id'],
       'presence_id': Get.arguments['presence_id'],
-      'date': Get.arguments['date'],
+      'start_date': startDateController.text,
+      'end_date': endDateController.text,
     };
     try {
       if (file == null) {
@@ -119,5 +148,42 @@ class PermissionController extends GetxController {
     } catch (e) {
       e.toString();
     }
+  }
+
+  Future<void> selectEndDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(DateTime.now().year + 5),
+    );
+    if (picked != null) {
+      String formattedDate = DateFormat('yyyy-MM-dd').format(picked);
+      endDateController.text = formattedDate;
+      update();
+    } else {
+      Get.rawSnackbar(
+        message: 'Silahkan Pilih Tanggal',
+        backgroundColor: ColorConstants.redColor,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+        duration: const Duration(seconds: 3),
+      );
+    }
+  }
+
+  @override
+  void onInit() {
+    startDateController = TextEditingController();
+    endDateController = TextEditingController();
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    startDateController.dispose();
+    endDateController.dispose();
+    super.onClose();
   }
 }

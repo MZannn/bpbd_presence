@@ -22,10 +22,12 @@ class UserModel {
 class Data {
   User? user;
   List<Presence>? presences;
+  List<dynamic>? leaveRules;
 
   Data({
     this.user,
     this.presences,
+    this.leaveRules,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -34,26 +36,27 @@ class Data {
             ? []
             : List<Presence>.from(
                 json["presences"]!.map((x) => Presence.fromJson(x))),
+        leaveRules: json["leaveRules"],
       );
 }
 
 class Presence {
   int? id;
-  String? employeeId;
-  String? officeId;
+  String? nip;
+  int? officeId;
   String? attendanceClock;
   String? attendanceClockOut;
   DateTime? presenceDate;
   String? attendanceEntryStatus;
   String? attendanceExitStatus;
   String? entryPosition;
-  String? entryDistance;
+  double? entryDistance;
   String? exitPosition;
-  String? exitDistance;
+  double? exitDistance;
 
   Presence({
     this.id,
-    this.employeeId,
+    this.nip,
     this.officeId,
     this.attendanceClock,
     this.attendanceClockOut,
@@ -68,7 +71,7 @@ class Presence {
 
   factory Presence.fromJson(Map<String, dynamic> json) => Presence(
         id: json["id"],
-        employeeId: json["employee_id"],
+        nip: json["nip"],
         officeId: json["office_id"],
         attendanceClock: json["attendance_clock"],
         attendanceClockOut: json["attendance_clock_out"],
@@ -89,7 +92,7 @@ class User {
   String? phoneNumber;
   dynamic profilePhotoPath;
   String? deviceId;
-  String? officeId;
+  int? officeId;
   Office? office;
 
   User({
@@ -119,9 +122,13 @@ class Office {
   int? id;
   String? name;
   String? address;
-  String? latitude;
-  String? longitude;
-  String? radius;
+  double? latitude;
+  double? longitude;
+  double? radius;
+  String? startWork;
+  String? startBreak;
+  String? lateTolerance;
+  String? endWork;
 
   Office({
     this.id,
@@ -130,6 +137,10 @@ class Office {
     this.latitude,
     this.longitude,
     this.radius,
+    this.startWork,
+    this.startBreak,
+    this.lateTolerance,
+    this.endWork,
   });
 
   factory Office.fromJson(Map<String, dynamic> json) => Office(
@@ -139,5 +150,9 @@ class Office {
         latitude: json["latitude"],
         longitude: json["longitude"],
         radius: json["radius"],
+        startWork: json["start_work"],
+        startBreak: json["start_break"],
+        lateTolerance: json["late_tolerance"],
+        endWork: json["end_work"],
       );
 }

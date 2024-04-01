@@ -1,8 +1,6 @@
-import 'dart:developer';
-
-import 'package:bkd_presence/app/modules/login/provider/login_provider.dart';
-import 'package:bkd_presence/app/routes/app_pages.dart';
-import 'package:bkd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/modules/login/provider/login_provider.dart';
+import 'package:bpbd_presence/app/routes/app_pages.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,6 +24,7 @@ class LoginController extends GetxController {
     if (GetPlatform.isAndroid) {
       final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       deviceId.value = androidInfo.id;
+      update();
     } else if (GetPlatform.isIOS) {
       final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       deviceId.value = iosInfo.identifierForVendor!;
@@ -39,10 +38,8 @@ class LoginController extends GetxController {
         'password': passwordController.text,
         'device_id': deviceId.value,
       };
-      log('body: $body');
       var response = await _loginProvider.login(body);
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      log("response: $response");
       if (response['code'] == 200) {
         preferences.setString('token', response['data']['access_token']);
         Get.offAllNamed(Routes.home);
@@ -61,10 +58,10 @@ class LoginController extends GetxController {
   }
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     isLoading.value = true;
-    await getDeviceId();
+    getDeviceId();
     nipController = TextEditingController();
     passwordController = TextEditingController();
     isLoading.value = false;

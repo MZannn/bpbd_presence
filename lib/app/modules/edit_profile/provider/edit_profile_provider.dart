@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:bkd_presence/app/models/user_model.dart';
-import 'package:bkd_presence/app/services/api_service.dart';
+import 'package:bpbd_presence/app/models/user_model.dart';
+import 'package:bpbd_presence/app/services/api_service.dart';
 import 'package:get/get.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';

@@ -1,7 +1,7 @@
-import 'package:bkd_presence/app/themes/color_constants.dart';
-import 'package:bkd_presence/app/themes/themes.dart';
-import 'package:bkd_presence/app/widgets/button.dart';
-import 'package:bkd_presence/app/widgets/custom_app_bar.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/themes/themes.dart';
+import 'package:bpbd_presence/app/widgets/button.dart';
+import 'package:bpbd_presence/app/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -120,6 +120,54 @@ class VacationView extends GetView<VacationController> {
                           }
                           return null;
                         },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 115,
+                      child: Text(
+                        "Jenis Cuti",
+                        style:
+                            textTheme.bodySmall!.copyWith(color: Colors.black),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 12,
+                      child: Text(
+                        ":",
+                        style:
+                            textTheme.bodySmall!.copyWith(color: Colors.black),
+                      ),
+                    ),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        items: Get.arguments['leave_rules']
+                            .map<DropdownMenuItem<String>>((dynamic item) {
+                          return DropdownMenuItem<String>(
+                              value: item, child: Text(item));
+                        }).toList(),
+                        value: controller.selectedLeaveType,
+                        onChanged: (value) {
+                          controller.selectedLeaveType = value!;
+                        },
+                        decoration: const InputDecoration(
+                          hintText: 'Pilih jenis cuti',
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 0,
+                            horizontal: 10,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(8),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -251,8 +299,38 @@ class VacationView extends GetView<VacationController> {
                     height: 41,
                     width: 200,
                     onPressed: () {
-                      if (formKey.currentState!.validate() &&
-                          controller.fileName.value != '') {
+                      if (controller.fileName.value == '' &&
+                          controller.selectedLeaveType == null &&
+                          !formKey.currentState!.validate()) {
+                        Get.rawSnackbar(
+                          message: 'Form tidak boleh kosong',
+                          backgroundColor: ColorConstants.redColor,
+                          snackPosition: SnackPosition.BOTTOM,
+                          snackStyle: SnackStyle.FLOATING,
+                          margin: const EdgeInsets.all(16),
+                          borderRadius: 8,
+                        );
+                      } else if (controller.fileName.value == '') {
+                        Get.rawSnackbar(
+                          message: 'Surat cuti tidak boleh kosong',
+                          backgroundColor: ColorConstants.redColor,
+                          snackPosition: SnackPosition.BOTTOM,
+                          snackStyle: SnackStyle.FLOATING,
+                          margin: const EdgeInsets.all(16),
+                          borderRadius: 8,
+                        );
+                      } else if (controller.selectedLeaveType == null) {
+                        Get.rawSnackbar(
+                          message: 'Jenis cuti tidak boleh kosong',
+                          backgroundColor: ColorConstants.redColor,
+                          snackPosition: SnackPosition.BOTTOM,
+                          snackStyle: SnackStyle.FLOATING,
+                          margin: const EdgeInsets.all(16),
+                          borderRadius: 8,
+                        );
+                      } else if (formKey.currentState!.validate() &&
+                          controller.fileName.value != '' &&
+                          controller.selectedLeaveType != '') {
                         controller.vacation();
                       }
                     },

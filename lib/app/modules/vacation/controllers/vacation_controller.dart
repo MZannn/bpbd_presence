@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:bkd_presence/app/modules/vacation/provider/vacation_provider.dart';
-import 'package:bkd_presence/app/routes/app_pages.dart';
-import 'package:bkd_presence/app/themes/color_constants.dart';
-import 'package:bkd_presence/app/utils/typedef.dart';
+import 'package:bpbd_presence/app/modules/vacation/provider/vacation_provider.dart';
+import 'package:bpbd_presence/app/routes/app_pages.dart';
+import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/utils/typedef.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,7 +19,14 @@ class VacationController extends GetxController {
   RxString fileName = ''.obs;
   RxBool isLoading = false.obs;
   File? file;
-
+  List<String> leaveTypeList = [
+    'Cuti Tahunan',
+    'Cuti Sakit',
+    'Cuti Melahirkan',
+    'Cuti Alasan Penting',
+    'Cuti Besar'
+  ];
+  String? selectedLeaveType;
   late DateTime now;
   Future<void> selectStartDate(BuildContext context) async {
     MaterialLocalizations.of(context);
@@ -27,7 +34,7 @@ class VacationController extends GetxController {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(DateTime.now().year + 5),
     );
     if (picked != null) {
       String formattedDate = DateFormat('yyyy-MM-dd').format(picked);
@@ -50,7 +57,7 @@ class VacationController extends GetxController {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(DateTime.now().year + 5),
     );
     if (picked != null) {
       String formattedDate = DateFormat('yyyy-MM-dd').format(picked);
@@ -116,11 +123,12 @@ class VacationController extends GetxController {
   vacation() async {
     try {
       JSON body = {
-        'employee_id': Get.arguments['employee_id'],
+        'nip': Get.arguments['nip'],
         'office_id': Get.arguments['office_id'],
         'presence_id': Get.arguments['presence_id'],
         'start_date': startDateController.text,
         'end_date': endDateController.text,
+        'leave_type': selectedLeaveType,
         'reason': reasonController.text,
       };
 
@@ -186,5 +194,13 @@ class VacationController extends GetxController {
     endDateController = TextEditingController();
     reasonController = TextEditingController();
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    startDateController.dispose();
+    endDateController.dispose();
+    reasonController.dispose();
+    super.onClose();
   }
 }

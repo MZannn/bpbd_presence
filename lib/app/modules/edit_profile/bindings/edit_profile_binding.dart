@@ -1,4 +1,4 @@
-import 'package:bkd_presence/app/modules/edit_profile/provider/edit_profile_provider.dart';
+import 'package:bpbd_presence/app/modules/edit_profile/provider/edit_profile_provider.dart';
 import 'package:get/get.dart';
 
 import '../controllers/edit_profile_controller.dart';
