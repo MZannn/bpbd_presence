@@ -56,7 +56,8 @@ class HomeController extends GetxController with StateMixin<UserModel> {
   }
 
   // check distance with haversine formula
-  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double sphericalLawOfCosines(
+      double lat1, double lon1, double lat2, double lon2) {
     double ladToRad1 = math.pi * lat1 / 180;
     double ladToRad2 = math.pi * lat2 / 180;
     double lonToRad1 = math.pi * lon1 / 180;
@@ -87,7 +88,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       try {
         final userPresence = state?.data?.presences?.first;
         if (userPresence?.attendanceClock == null) {
-          final distance = calculateDistance(
+          final distance = sphericalLawOfCosines(
               state!.data!.user!.office!.latitude!,
               state!.data!.user!.office!.longitude!,
               position.latitude,
@@ -137,7 +138,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       int id, Position position, String entryStatus) async {
     final attendanceClock = DateFormat('HH:mm:ss').format(now.value);
     final entryPosition = "${position.latitude}, ${position.longitude}";
-    final entryDistance = calculateDistance(
+    final entryDistance = sphericalLawOfCosines(
         state!.data!.user!.office!.latitude!,
         state!.data!.user!.office!.longitude!,
         position.latitude,
@@ -158,8 +159,11 @@ class HomeController extends GetxController with StateMixin<UserModel> {
   // send attendance out to server
   presenceOut() async {
     final userPresence = state?.data?.presences?.first;
-    final exitDistance = calculateDistance(state!.data!.user!.office!.latitude!,
-        state!.data!.user!.office!.longitude!, latitude.value, longitude.value);
+    final exitDistance = sphericalLawOfCosines(
+        state!.data!.user!.office!.latitude!,
+        state!.data!.user!.office!.longitude!,
+        latitude.value,
+        longitude.value);
     var body = {
       "attendance_clock_out": DateFormat('HH:mm:ss').format(now.value),
       "attendance_exit_status": "HADIR",
@@ -251,7 +255,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
 
   // presence in checker
   Future<void> presenceOutChecker() async {
-    var distance = calculateDistance(state!.data!.user!.office!.latitude!,
+    var distance = sphericalLawOfCosines(state!.data!.user!.office!.latitude!,
         state!.data!.user!.office!.longitude!, latitude.value, longitude.value);
     if (now.value.weekday == DateTime.saturday ||
         now.value.weekday == DateTime.sunday) {
