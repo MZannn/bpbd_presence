@@ -183,8 +183,8 @@ class HomeView extends GetView<HomeController> {
                                                       .latitude!,
                                                   state.data!.user!.office!
                                                       .longitude!),
-                                              radius: Constants
-                                                      .maxAttendanceDistance *
+                                              radius: state.data!.user!.office!
+                                                      .radius! *
                                                   1000, // convert ke meter
                                               strokeWidth: 1,
                                               strokeColor:

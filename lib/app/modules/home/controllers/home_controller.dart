@@ -68,7 +68,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
                 math.cos(ladToRad2) *
                 math.cos(lonToRad1 - lonToRad2)) *
         6371;
-    var distance = sloc * 1000; //convert to meter
+    var distance = sloc; //convert to meter
     return distance;
   }
 
@@ -85,17 +85,23 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         target: LatLng(position.latitude, position.longitude),
         zoom: 17,
       );
+      log('latitude ${latitude.value}');
+      log('longitude ${longitude.value}');
       try {
         final userPresence = state?.data?.presences?.first;
+        log('${userPresence?.attendanceClock == null}');
         if (userPresence?.attendanceClock == null) {
           final distance = sphericalLawOfCosines(
               state!.data!.user!.office!.latitude!,
               state!.data!.user!.office!.longitude!,
               position.latitude,
               position.longitude);
-          final isLate = now.value.isAfter(Constants.maxAttendanceHour);
+          log('distance $distance');
+          log('radius ${state!.data!.user!.office!.radius!}');
+          log('ini ${distance <= state!.data!.user!.office!.radius!}');
+          final isLate = now.value.isAfter(maximalLate);
           final entryStatus = isLate ? 'TERLAMBAT' : 'HADIR';
-          if (distance <= Constants.maxAttendanceDistance &&
+          if (distance <= state!.data!.user!.office!.radius! &&
               isMockLocation.value == false &&
               now.value.isAfter(attendanceStartHour) &&
               now.value.isBefore(maximalLate)) {
@@ -308,7 +314,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       );
     } else if (isMockLocation.value == false &&
         now.value.isAfter(clockOut) &&
-        distance <= Constants.maxAttendanceDistance) {
+        distance <= state!.data!.user!.office!.radius!) {
       await presenceOut();
     } else {
       Get.rawSnackbar(
