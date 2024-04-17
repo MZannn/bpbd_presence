@@ -2,14 +2,16 @@ import 'package:get/get.dart';
 
 import '../binding/global_binding.dart';
 import '../models/user_model.dart';
-import '../modules/bussiness_trip/bindings/bussiness_trip_binding.dart';
-import '../modules/bussiness_trip/views/bussiness_trip_view.dart';
+import '../modules/business_trip/bindings/business_trip_binding.dart';
+import '../modules/business_trip/views/business_trip_view.dart';
 import '../modules/change_device/bindings/change_device_binding.dart';
 import '../modules/change_device/views/change_device_view.dart';
 import '../modules/detail_presence/bindings/detail_presence_binding.dart';
 import '../modules/detail_presence/views/detail_presence_view.dart';
 import '../modules/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/edit_profile/views/edit_profile_view.dart';
+import '../modules/emergency_attendance/bindings/emergency_attendance_binding.dart';
+import '../modules/emergency_attendance/views/emergency_attendance_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -75,9 +77,9 @@ class AppPages {
       binding: PermissionBinding(),
     ),
     GetPage(
-      name: _Paths.bussinessTrip,
-      page: () => const BussinessTripView(),
-      binding: BussinessTripBinding(),
+      name: _Paths.businessTrip,
+      page: () => const BusinessTripView(),
+      binding: BusinessTripBinding(),
     ),
     GetPage(
       name: _Paths.splash,
@@ -88,6 +90,11 @@ class AppPages {
       name: _Paths.vacation,
       page: () => const VacationView(),
       binding: VacationBinding(),
+    ),
+    GetPage(
+      name: _Paths.emergencyAttendance,
+      page: () => const EmergencyAttendanceView(),
+      binding: EmergencyAttendanceBinding(),
     ),
   ];
 }

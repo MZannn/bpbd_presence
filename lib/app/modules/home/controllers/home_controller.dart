@@ -57,12 +57,18 @@ class HomeController extends GetxController with StateMixin<UserModel> {
 
   // check distance with haversine formula
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    var p = 0.017453292519943295; // Math.PI / 180
-    var c = math.cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * math.asin(math.sqrt(a)); // 2 * R; R = 6371 km
+    double ladToRad1 = math.pi * lat1 / 180;
+    double ladToRad2 = math.pi * lat2 / 180;
+    double lonToRad1 = math.pi * lon1 / 180;
+    double lonToRad2 = math.pi * lon2 / 180;
+
+    var sloc = math.acos(math.sin(ladToRad1) * math.sin(ladToRad2) +
+            math.cos(ladToRad1) *
+                math.cos(ladToRad2) *
+                math.cos(lonToRad1 - lonToRad2)) *
+        6371;
+    var distance = sloc * 1000; //convert to meter
+    return distance;
   }
 
   checkLocationChanges() {
@@ -80,19 +86,18 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       );
       try {
         final userPresence = state?.data?.presences?.first;
-
         if (userPresence?.attendanceClock == null) {
-          final distance = calculateDistance(Constants.latitude,
-              Constants.longitude, position.latitude, position.longitude);
+          final distance = calculateDistance(
+              state!.data!.user!.office!.latitude!,
+              state!.data!.user!.office!.longitude!,
+              position.latitude,
+              position.longitude);
           final isLate = now.value.isAfter(Constants.maxAttendanceHour);
           final entryStatus = isLate ? 'TERLAMBAT' : 'HADIR';
           if (distance <= Constants.maxAttendanceDistance &&
               isMockLocation.value == false &&
               now.value.isAfter(attendanceStartHour) &&
               now.value.isBefore(maximalLate)) {
-            if (state != null) {
-              change(null, status: RxStatus.loading());
-            }
             final presence = await sendAttendanceToServer(
                 userPresence!.id!, position, entryStatus);
             change(
@@ -132,8 +137,11 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       int id, Position position, String entryStatus) async {
     final attendanceClock = DateFormat('HH:mm:ss').format(now.value);
     final entryPosition = "${position.latitude}, ${position.longitude}";
-    final entryDistance = calculateDistance(Constants.latitude,
-        Constants.longitude, position.latitude, position.longitude);
+    final entryDistance = calculateDistance(
+        state!.data!.user!.office!.latitude!,
+        state!.data!.user!.office!.longitude!,
+        position.latitude,
+        position.longitude);
 
     final presence = await _homeProvider.presenceIn(
       id,
@@ -150,8 +158,8 @@ class HomeController extends GetxController with StateMixin<UserModel> {
   // send attendance out to server
   presenceOut() async {
     final userPresence = state?.data?.presences?.first;
-    final exitDistance = calculateDistance(Constants.latitude,
-        Constants.longitude, latitude.value, longitude.value);
+    final exitDistance = calculateDistance(state!.data!.user!.office!.latitude!,
+        state!.data!.user!.office!.longitude!, latitude.value, longitude.value);
     var body = {
       "attendance_clock_out": DateFormat('HH:mm:ss').format(now.value),
       "attendance_exit_status": "HADIR",
@@ -243,8 +251,8 @@ class HomeController extends GetxController with StateMixin<UserModel> {
 
   // presence in checker
   Future<void> presenceOutChecker() async {
-    var distance = calculateDistance(Constants.latitude, Constants.longitude,
-        latitude.value, longitude.value);
+    var distance = calculateDistance(state!.data!.user!.office!.latitude!,
+        state!.data!.user!.office!.longitude!, latitude.value, longitude.value);
     if (now.value.weekday == DateTime.saturday ||
         now.value.weekday == DateTime.sunday) {
       Get.rawSnackbar(
@@ -346,7 +354,6 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       now.value = now.value.add(const Duration(seconds: 1));
     });
-    clockOut = DateTime.now();
     checkLocationChanges();
     await determinePosition().then((value) {
       cameraPosition = CameraPosition(

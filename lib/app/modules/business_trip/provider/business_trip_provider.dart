@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 
-class BussinessTripProvider extends GetConnect {
-  BussinessTripProvider(this._apiService);
+class BusinessTripProvider extends GetConnect {
+  BusinessTripProvider(this._apiService);
   final ApiService _apiService;
   Future fetchTime() async {
     var response = await get(
@@ -37,7 +37,7 @@ class BussinessTripProvider extends GetConnect {
 
     final response = await _apiService.post(
       body: form,
-      endpoint: '/bussiness-trip',
+      endpoint: '/business-trip',
       requiresAuthToken: true,
     );
     return response;

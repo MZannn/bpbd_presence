@@ -11,6 +11,7 @@ import '../controllers/profile_controller.dart';
 class ProfileView extends GetView<ProfileController> {
   const ProfileView(this.user, {Key? key, UserModel? state}) : super(key: key);
   final UserModel? user;
+
   @override
   Widget build(BuildContext context) {
     String? name = user?.data?.user?.name;
@@ -187,7 +188,7 @@ class ProfileView extends GetView<ProfileController> {
                       // ),
                       InkWell(
                         onTap: () {
-                          Get.toNamed(Routes.bussinessTrip, arguments: {
+                          Get.toNamed(Routes.businessTrip, arguments: {
                             'nip': user?.data?.user?.nip,
                             'office_id': user?.data?.user?.officeId,
                             'presence_id': user?.data?.presences?.first.id,
@@ -228,6 +229,28 @@ class ProfileView extends GetView<ProfileController> {
                             ),
                             Text(
                               "Cuti",
+                              style: textTheme.bodyLarge!.copyWith(
+                                color: const Color(0xFF383838),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Get.toNamed(Routes.emergencyAttendance);
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(Icons.warning_rounded),
+                            const SizedBox(
+                              width: 12,
+                            ),
+                            Text(
+                              "Absensi Darurat",
                               style: textTheme.bodyLarge!.copyWith(
                                 color: const Color(0xFF383838),
                               ),

@@ -166,8 +166,10 @@ class HomeView extends GetView<HomeController> {
                                             Marker(
                                               markerId: const MarkerId("BPBD"),
                                               position: LatLng(
-                                                Constants.latitude,
-                                                Constants.longitude,
+                                                state.data!.user!.office!
+                                                    .latitude!,
+                                                state.data!.user!.office!
+                                                    .longitude!,
                                               ),
                                             ),
                                           },
@@ -176,8 +178,11 @@ class HomeView extends GetView<HomeController> {
                                             Circle(
                                               circleId:
                                                   const CircleId("circle"),
-                                              center: LatLng(Constants.latitude,
-                                                  Constants.longitude),
+                                              center: LatLng(
+                                                  state.data!.user!.office!
+                                                      .latitude!,
+                                                  state.data!.user!.office!
+                                                      .longitude!),
                                               radius: Constants
                                                       .maxAttendanceDistance *
                                                   1000, // convert ke meter

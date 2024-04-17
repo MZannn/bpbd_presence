@@ -11,9 +11,10 @@ abstract class Routes {
   static const changeDevice = _Paths.changeDevice;
   static const detailPresence = _Paths.detailPresence;
   static const permission = _Paths.permission;
-  static const bussinessTrip = _Paths.bussinessTrip;
+  static const businessTrip = _Paths.businessTrip;
   static const splash = _Paths.splash;
   static const vacation = _Paths.vacation;
+  static const emergencyAttendance = _Paths.emergencyAttendance;
 }
 
 abstract class _Paths {
@@ -26,7 +27,8 @@ abstract class _Paths {
   static const changeDevice = '/change-device';
   static const detailPresence = '/detail-presence';
   static const permission = '/permission';
-  static const bussinessTrip = '/bussiness-trip';
+  static const businessTrip = '/business-trip';
   static const splash = '/splash';
   static const vacation = '/vacation';
+  static const emergencyAttendance = '/emergency-attendance';
 }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bpbd_presence/app/modules/bussiness_trip/provider/bussiness_trip_provider.dart';
+import 'package:bpbd_presence/app/modules/business_trip/provider/business_trip_provider.dart';
 import 'package:bpbd_presence/app/routes/app_pages.dart';
 import 'package:bpbd_presence/app/themes/color_constants.dart';
 import 'package:bpbd_presence/app/utils/typedef.dart';
@@ -9,9 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class BussinessTripController extends GetxController {
-  BussinessTripController(this._bussinessTripProvider);
-  final BussinessTripProvider _bussinessTripProvider;
+class BusinessTripController extends GetxController {
+  BusinessTripController(this._businessTripProvider);
+  final BusinessTripProvider _businessTripProvider;
   late TextEditingController startDateController;
   late TextEditingController endDateController;
   RxString fileName = ''.obs;
@@ -67,7 +67,7 @@ class BussinessTripController extends GetxController {
   }
 
   Future<DateTime> fetchTime() async {
-    var response = await _bussinessTripProvider.fetchTime();
+    var response = await _businessTripProvider.fetchTime();
     var dateTimeString = response['dateTime'];
     final formattedDateTimeString = dateTimeString.split('.')[0];
     final dateTime = DateTime.parse(formattedDateTimeString);
@@ -122,7 +122,7 @@ class BussinessTripController extends GetxController {
     }
   }
 
-  bussinessTrip() async {
+  businessTrip() async {
     try {
       JSON body = {
         'nip': Get.arguments['nip'],
@@ -133,7 +133,7 @@ class BussinessTripController extends GetxController {
       };
 
       final response =
-          await _bussinessTripProvider.sendBusinessTrip(body, file);
+          await _businessTripProvider.sendBusinessTrip(body, file);
       if (DateTime.parse(startDateController.text).weekday ==
               DateTime.saturday ||
           DateTime.parse(startDateController.text).weekday == DateTime.sunday ||

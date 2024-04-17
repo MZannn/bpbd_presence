@@ -59,9 +59,9 @@ class DetailPresence {
   String? attendanceEntryStatus;
   String? attendanceExitStatus;
   String? entryPosition;
-  String? entryDistance;
+  double? entryDistance;
   String? exitPosition;
-  String? exitDistance;
+  double? exitDistance;
 
   factory DetailPresence.fromJson(Map<String, dynamic> json) => DetailPresence(
         id: json["id"],

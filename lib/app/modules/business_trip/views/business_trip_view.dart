@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../controllers/bussiness_trip_controller.dart';
+import '../controllers/business_trip_controller.dart';
 
-class BussinessTripView extends GetView<BussinessTripController> {
-  const BussinessTripView({Key? key}) : super(key: key);
+class BusinessTripView extends GetView<BusinessTripController> {
+  const BusinessTripView({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final textTheme = Themes.light.textTheme;
@@ -221,7 +221,7 @@ class BussinessTripView extends GetView<BussinessTripController> {
                       width: 150,
                       onPressed: () {
                         if (formKey.currentState!.validate()) {
-                          controller.bussinessTrip();
+                          controller.businessTrip();
                         }
                       },
                       child: Text(
