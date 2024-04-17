@@ -36,7 +36,9 @@ class Data {
             ? []
             : List<Presence>.from(
                 json["presences"]!.map((x) => Presence.fromJson(x))),
-        leaveRules: json["leaveRules"],
+        leaveRules: json["leaveRules"] == null
+            ? []
+            : List<dynamic>.from(json["leaveRules"]!.map((x) => x)),
       );
 }
 
@@ -44,15 +46,15 @@ class Presence {
   int? id;
   String? nip;
   int? officeId;
-  String? attendanceClock;
-  String? attendanceClockOut;
+  dynamic attendanceClock;
+  dynamic attendanceClockOut;
   DateTime? presenceDate;
-  String? attendanceEntryStatus;
-  String? attendanceExitStatus;
-  String? entryPosition;
-  double? entryDistance;
-  String? exitPosition;
-  double? exitDistance;
+  dynamic attendanceEntryStatus;
+  dynamic attendanceExitStatus;
+  dynamic entryPosition;
+  dynamic entryDistance;
+  dynamic exitPosition;
+  dynamic exitDistance;
 
   Presence({
     this.id,
@@ -75,7 +77,9 @@ class Presence {
         officeId: json["office_id"],
         attendanceClock: json["attendance_clock"],
         attendanceClockOut: json["attendance_clock_out"],
-        presenceDate: DateTime.parse(json["presence_date"]),
+        presenceDate: json["presence_date"] == null
+            ? null
+            : DateTime.parse(json["presence_date"]),
         attendanceEntryStatus: json["attendance_entry_status"],
         attendanceExitStatus: json["attendance_exit_status"],
         entryPosition: json["entry_position"],
@@ -124,7 +128,7 @@ class Office {
   String? address;
   double? latitude;
   double? longitude;
-  double? radius;
+  int? radius;
   String? startWork;
   String? startBreak;
   String? lateTolerance;
@@ -147,8 +151,8 @@ class Office {
         id: json["id"],
         name: json["name"],
         address: json["address"],
-        latitude: json["latitude"],
-        longitude: json["longitude"],
+        latitude: json["latitude"]?.toDouble(),
+        longitude: json["longitude"]?.toDouble(),
         radius: json["radius"],
         startWork: json["start_work"],
         startBreak: json["start_break"],

@@ -210,6 +210,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       this.user = user;
       if (user!.data?.user?.deviceId == null && token != null) {
         await _homeProvider.logout();
+        change(null, status: RxStatus.error('Device Id Tidak Ditemukan'));
         prefs.clear();
         Get.dialog(
           AlertDialog(
@@ -325,6 +326,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
   Future hourAttendance() async {
     final dateFormat = DateFormat('yyyy-MM-dd');
     var today = dateFormat.format(now.value);
+    log('${state!.data!.user!.office!.startWork}');
     DateTime startHour =
         DateTime.parse('$today ${state?.data!.user!.office!.startWork!}');
     DateTime startBreakHour =

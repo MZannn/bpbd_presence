@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bpbd_presence/app/models/user_model.dart';
 import 'package:bpbd_presence/app/services/api_service.dart';
 import 'package:get/get.dart';
@@ -10,7 +12,9 @@ class HomeProvider extends GetConnect {
       endpoint: '/user',
       requiresAuthToken: true,
     );
-    return UserModel.fromJson(response);
+    var userModel = UserModel.fromJson(response);
+    log('UserModel: ${userModel}');
+    return userModel;
   }
 
   Future<UserModel?> presenceIn(int id, Map<String, dynamic> body) async {
