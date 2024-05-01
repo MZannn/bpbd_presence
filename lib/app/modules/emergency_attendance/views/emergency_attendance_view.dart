@@ -44,32 +44,34 @@ class EmergencyAttendanceView extends GetView<EmergencyAttendanceController> {
               ),
               child: const Text('Ambil Gambar'),
             ),
-            const SizedBox(height: 16),
-            Obx(
-              () => Text(
-                'Latitude: ${controller.latitude.value}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Obx(
-              () => Text(
-                'Longitude: ${controller.longitude.value}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+            // const SizedBox(height: 16),
+            // Obx(
+            //   () => Text(
+            //     'Latitude: ${controller.latitude.value}',
+            //     style: const TextStyle(
+            //       fontSize: 16,
+            //       fontWeight: FontWeight.w600,
+            //     ),
+            //   ),
+            // ),
+            // Obx(
+            //   () => Text(
+            //     'Longitude: ${controller.longitude.value}',
+            //     style: const TextStyle(
+            //       fontSize: 16,
+            //       fontWeight: FontWeight.w600,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ElevatedButton(
-          onPressed: () {controller.sendEmergencyAttendance();},
+          onPressed: () {
+            controller.emergencyAttendance();
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: ColorConstants.mainColor,
             minimumSize: const Size(double.infinity, 48),

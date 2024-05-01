@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bpbd_presence/app/services/base_provider.dart';
 import 'package:bpbd_presence/app/utils/typedef.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +12,7 @@ class ApiService {
   Future<void> _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? tokenStorage = prefs.getString('token');
+    log('Token: $tokenStorage');
     if (tokenStorage != null) {
       token = tokenStorage;
     }

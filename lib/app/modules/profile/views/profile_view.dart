@@ -241,7 +241,11 @@ class ProfileView extends GetView<ProfileController> {
                       ),
                       InkWell(
                         onTap: () {
-                          Get.toNamed(Routes.emergencyAttendance);
+                          Get.toNamed(Routes.emergencyAttendance, arguments: {
+                            'nip': user?.data?.user?.nip,
+                            'office_id': user?.data?.user?.officeId,
+                            'presence_id': user?.data?.presences?.first.id,
+                          });
                         },
                         child: Row(
                           children: [

@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:bpbd_presence/app/modules/emergency_attendance/provider/emergency_attendance_provider.dart';
+import 'package:bpbd_presence/app/routes/app_pages.dart';
 import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/utils/typedef.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
@@ -12,6 +15,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class EmergencyAttendanceController extends GetxController {
+  EmergencyAttendanceController(this._emergencyAttendanceProvider);
+  final EmergencyAttendanceProvider _emergencyAttendanceProvider;
   Rx<XFile?> compressedImage = Rx<XFile?>(null);
   RxDouble latitude = 0.0.obs;
   RxDouble longitude = 0.0.obs;
@@ -54,7 +59,42 @@ class EmergencyAttendanceController extends GetxController {
     }
   }
 
-  void sendEmergencyAttendance() {}
+  emergencyAttendance() async {
+    try {
+      JSON body = {
+        'nip': Get.arguments['nip'],
+        'office_id': Get.arguments['office_id'],
+        'presence_id': Get.arguments['presence_id'],
+        'presence_date': DateTime.now(),
+      };
+
+      final response = await _emergencyAttendanceProvider
+          .sendEmergencyAttendance(body, compressedImage.value!);
+      log('Response: $response');
+      if (response['code'] == 200) {
+        Get.rawSnackbar(
+          message: 'Berhasil Mengajukan Perjalanan Dinas',
+          backgroundColor: ColorConstants.mainColor,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 10,
+          duration: const Duration(seconds: 3),
+        );
+        Get.offAllNamed(Routes.home);
+      } else {
+        Get.rawSnackbar(
+          message: '${response["message"]}',
+          backgroundColor: ColorConstants.redColor,
+          snackPosition: SnackPosition.BOTTOM,
+          margin: const EdgeInsets.all(16),
+          borderRadius: 10,
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } catch (e) {
+      e.toString();
+    }
+  }
 
   Future<void> checkLocationChanges() async {
     bool serviceEnabled;

@@ -46,15 +46,15 @@ class Presence {
   int? id;
   String? nip;
   int? officeId;
-  dynamic attendanceClock;
-  dynamic attendanceClockOut;
+  String? attendanceClock;
+  String? attendanceClockOut;
   DateTime? presenceDate;
-  dynamic attendanceEntryStatus;
+  String? attendanceEntryStatus;
   dynamic attendanceExitStatus;
-  dynamic entryPosition;
-  dynamic entryDistance;
-  dynamic exitPosition;
-  dynamic exitDistance;
+  String? entryPosition;
+  double? entryDistance;
+  String? exitPosition;
+  double? exitDistance;
 
   Presence({
     this.id,
@@ -83,7 +83,7 @@ class Presence {
         attendanceEntryStatus: json["attendance_entry_status"],
         attendanceExitStatus: json["attendance_exit_status"],
         entryPosition: json["entry_position"],
-        entryDistance: json["entry_distance"],
+        entryDistance: json["entry_distance"]?.toDouble(),
         exitPosition: json["exit_position"],
         exitDistance: json["exit_distance"],
       );
@@ -128,7 +128,7 @@ class Office {
   String? address;
   double? latitude;
   double? longitude;
-  int? radius;
+  double? radius;
   String? startWork;
   String? startBreak;
   String? lateTolerance;
@@ -153,7 +153,7 @@ class Office {
         address: json["address"],
         latitude: json["latitude"]?.toDouble(),
         longitude: json["longitude"]?.toDouble(),
-        radius: json["radius"],
+        radius: json["radius"]?.toDouble(),
         startWork: json["start_work"],
         startBreak: json["start_break"],
         lateTolerance: json["late_tolerance"],

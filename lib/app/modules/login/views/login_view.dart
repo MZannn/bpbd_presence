@@ -31,7 +31,7 @@ class LoginView extends GetView<LoginController> {
                       style: textTheme.titleLarge,
                     ),
                     Text(
-                      "Sistem Presensi Badan Kepegawaian Daerah Provinsi Kalimantan Tengah",
+                      "Sistem Presensi Badan Penanggulangan Bencana Daerah Kota Bogor",
                       style: textTheme.bodyMedium,
                     ),
                   ],

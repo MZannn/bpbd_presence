@@ -1,13 +1,15 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:bpbd_presence/app/services/api_service.dart';
 import 'package:bpbd_presence/app/utils/typedef.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 
-class BusinessTripProvider extends GetConnect {
-  BusinessTripProvider(this._apiService);
+class EmergencyAttendanceProvider extends GetConnect {
+  EmergencyAttendanceProvider(this._apiService);
   final ApiService _apiService;
   Future fetchTime() async {
     var response = await get(
@@ -15,18 +17,17 @@ class BusinessTripProvider extends GetConnect {
     return response.body;
   }
 
-  Future sendBusinessTrip(JSON body, File? file) async {
+  Future sendEmergencyAttendance(JSON body, XFile? file) async {
     final form = FormData({
       'nip': body['nip'],
       'office_id': body['office_id'],
       'presence_id': body['presence_id'],
-      'start_date': body['start_date'],
-      'end_date': body['end_date'],
+      'presence_date': body['presence_date'],
     });
     if (file != null) {
       form.files.add(
         MapEntry(
-          'file',
+          'image',
           MultipartFile(
             file.path,
             filename: basename(file.path),
@@ -37,9 +38,10 @@ class BusinessTripProvider extends GetConnect {
 
     final response = await _apiService.post(
       body: form,
-      endpoint: '/bussiness-trip',
+      endpoint: '/emergency-presence',
       requiresAuthToken: true,
     );
+    log('Response: $response');
     return response;
   }
 }

@@ -12,9 +12,9 @@ class HomeProvider extends GetConnect {
       endpoint: '/user',
       requiresAuthToken: true,
     );
-    var userModel = UserModel.fromJson(response);
-    log('UserModel: ${userModel}');
-    return userModel;
+    log('Response: $response');
+    return UserModel.fromJson(response);
+    // return response;
   }
 
   Future<UserModel?> presenceIn(int id, Map<String, dynamic> body) async {

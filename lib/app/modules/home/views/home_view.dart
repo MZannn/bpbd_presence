@@ -23,6 +23,7 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final textTheme = Themes.light.textTheme;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: controller.obx(
         (state) {
           String? name = state?.data?.user?.name;
@@ -47,11 +48,12 @@ class HomeView extends GetView<HomeController> {
                       children: [
                         Container(
                           color: ColorConstants.mainColor,
+                          height: Get.height * 0.3,
                         ),
                         SafeArea(
                           child: RefreshIndicator(
                             onRefresh: () async {
-                              await controller.getUser();
+                              controller.onInit();
                             },
                             child: ListView(
                               children: [

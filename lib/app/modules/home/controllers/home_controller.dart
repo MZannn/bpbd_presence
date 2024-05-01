@@ -31,7 +31,6 @@ class HomeController extends GetxController with StateMixin<UserModel> {
 
   late CameraPosition cameraPosition;
   UserModel? user;
-  // mengecek posisi user
   Future<Position> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -53,23 +52,6 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     }
 
     return await Geolocator.getCurrentPosition();
-  }
-
-  // check distance with haversine formula
-  double sphericalLawOfCosines(
-      double lat1, double lon1, double lat2, double lon2) {
-    double ladToRad1 = math.pi * lat1 / 180;
-    double ladToRad2 = math.pi * lat2 / 180;
-    double lonToRad1 = math.pi * lon1 / 180;
-    double lonToRad2 = math.pi * lon2 / 180;
-
-    var sloc = math.acos(math.sin(ladToRad1) * math.sin(ladToRad2) +
-            math.cos(ladToRad1) *
-                math.cos(ladToRad2) *
-                math.cos(lonToRad1 - lonToRad2)) *
-        6371;
-    var distance = sloc; //convert to meter
-    return distance;
   }
 
   checkLocationChanges() {
@@ -137,6 +119,23 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         change(null, status: RxStatus.error(e.toString()));
       }
     });
+  }
+
+  // check distance with haversine formula
+  double sphericalLawOfCosines(
+      double lat1, double lon1, double lat2, double lon2) {
+    double ladToRad1 = math.pi * lat1 / 180;
+    double ladToRad2 = math.pi * lat2 / 180;
+    double lonToRad1 = math.pi * lon1 / 180;
+    double lonToRad2 = math.pi * lon2 / 180;
+
+    var sloc = math.acos(math.sin(ladToRad1) * math.sin(ladToRad2) +
+            math.cos(ladToRad1) *
+                math.cos(ladToRad2) *
+                math.cos(lonToRad1 - lonToRad2)) *
+        6371;
+    var distance = sloc; //convert to meter
+    return distance;
   }
 
   // send attendance in to server
@@ -360,6 +359,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
   void onInit() async {
     isLoading.value = true;
     await getUser();
+
     now.value = await fetchTime();
     log("now ${now.value}");
     await hourAttendance();
