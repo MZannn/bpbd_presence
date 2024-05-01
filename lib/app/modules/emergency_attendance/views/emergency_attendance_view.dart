@@ -63,6 +63,13 @@ class EmergencyAttendanceView extends GetView<EmergencyAttendanceController> {
             //     ),
             //   ),
             // ),
+            // Obx(() => Text(
+            //       'Lokasi: ${controller.address.value}',
+            //       style: const TextStyle(
+            //         fontSize: 16,
+            //         fontWeight: FontWeight.w600,
+            //       ),
+            //     )),
           ],
         ),
       ),

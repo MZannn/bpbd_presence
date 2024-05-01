@@ -23,6 +23,9 @@ class EmergencyAttendanceProvider extends GetConnect {
       'office_id': body['office_id'],
       'presence_id': body['presence_id'],
       'presence_date': body['presence_date'],
+      'latitude': body['latitude'],
+      'longitude': body['longitude'],
+      'address': body['address'],
     });
     if (file != null) {
       form.files.add(

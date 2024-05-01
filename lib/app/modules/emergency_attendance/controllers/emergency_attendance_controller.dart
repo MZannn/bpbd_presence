@@ -8,6 +8,7 @@ import 'package:bpbd_presence/app/themes/color_constants.dart';
 import 'package:bpbd_presence/app/utils/typedef.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,6 +22,8 @@ class EmergencyAttendanceController extends GetxController {
   RxDouble latitude = 0.0.obs;
   RxDouble longitude = 0.0.obs;
   RxBool isMockLocation = false.obs;
+  RxString address = ''.obs;
+  List<Placemark> placemarks = [];
 
   @override
   void onInit() async {
@@ -66,14 +69,18 @@ class EmergencyAttendanceController extends GetxController {
         'office_id': Get.arguments['office_id'],
         'presence_id': Get.arguments['presence_id'],
         'presence_date': DateTime.now(),
+        'latitude': latitude.value,
+        'longitude': longitude.value,
+        'address': address.value,
       };
-
+      log('Body: $body');
+      log('Compressed Image: ${compressedImage.value!.path}');
       final response = await _emergencyAttendanceProvider
           .sendEmergencyAttendance(body, compressedImage.value!);
       log('Response: $response');
       if (response['code'] == 200) {
         Get.rawSnackbar(
-          message: 'Berhasil Mengajukan Perjalanan Dinas',
+          message: 'Berhasil Mengajukan Presensi Darurat',
           backgroundColor: ColorConstants.mainColor,
           snackPosition: SnackPosition.BOTTOM,
           margin: const EdgeInsets.all(16),
@@ -124,21 +131,27 @@ class EmergencyAttendanceController extends GetxController {
         accuracy: LocationAccuracy.high,
         distanceFilter: 10,
       ),
-    ).listen((Position position) {
+    ).listen((Position position) async {
       latitude.value = position.latitude;
       longitude.value = position.longitude;
       isMockLocation.value = position.isMocked;
+      placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      // address.value = 'Lat: ${position.latitude}, Long: ${position.longitude}';
+      address.value = placemarks[0].street.toString();
       update();
     }, onError: (error) {
       print('Error getting location: $error');
     });
 
-    // Dapatkan posisi awal
     try {
       Position initialPosition = await Geolocator.getCurrentPosition();
       latitude.value = initialPosition.latitude;
       longitude.value = initialPosition.longitude;
       isMockLocation.value = initialPosition.isMocked;
+      placemarks =
+          await placemarkFromCoordinates(latitude.value, longitude.value);
+      address.value = placemarks[0].street.toString();
       update();
     } catch (e) {
       print('Error getting initial position: $e');
