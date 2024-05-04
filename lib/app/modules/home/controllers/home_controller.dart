@@ -70,49 +70,54 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       log('latitude ${latitude.value}');
       log('longitude ${longitude.value}');
       try {
-        final userPresence = state?.data?.presences?.first;
-        log('${userPresence?.attendanceClock == null}');
-        if (userPresence?.attendanceClock == null) {
-          final distance = sphericalLawOfCosines(
-              state!.data!.user!.office!.latitude!,
-              state!.data!.user!.office!.longitude!,
-              position.latitude,
-              position.longitude);
-          log('distance $distance');
-          log('radius ${state!.data!.user!.office!.radius!}');
-          log('ini ${distance <= state!.data!.user!.office!.radius!}');
-          final isLate = now.value.isAfter(maximalLate);
-          final entryStatus = isLate ? 'TERLAMBAT' : 'HADIR';
-          if (distance <= state!.data!.user!.office!.radius! &&
-              isMockLocation.value == false &&
-              now.value.isAfter(attendanceStartHour) &&
-              now.value.isBefore(maximalLate)) {
-            final presence = await sendAttendanceToServer(
-                userPresence!.id!, position, entryStatus);
-            change(
-              presence,
-              status: RxStatus.success(),
-            );
-            final message =
-                isLate ? 'Anda Hadir Terlambat' : 'Anda Hadir Tepat Waktu';
+        final isPresenceEmpty = state?.data?.presences?.isEmpty ?? true;
+        if (isPresenceEmpty) {
+          return;
+        } else {
+          final userPresence = state?.data?.presences?.first;
+          log('${userPresence?.attendanceClock == null}');
+          if (userPresence?.attendanceClock == null) {
+            final distance = sphericalLawOfCosines(
+                state!.data!.user!.office!.latitude!,
+                state!.data!.user!.office!.longitude!,
+                position.latitude,
+                position.longitude);
+            log('distance $distance');
+            log('radius ${state!.data!.user!.office!.radius!}');
+            log('ini ${distance <= state!.data!.user!.office!.radius!}');
+            final isLate = now.value.isAfter(maximalLate);
+            final entryStatus = isLate ? 'TERLAMBAT' : 'HADIR';
+            if (distance <= state!.data!.user!.office!.radius! &&
+                isMockLocation.value == false &&
+                now.value.isAfter(attendanceStartHour) &&
+                now.value.isBefore(maximalLate)) {
+              final presence = await sendAttendanceToServer(
+                  userPresence!.id!, position, entryStatus);
+              change(
+                presence,
+                status: RxStatus.success(),
+              );
+              final message =
+                  isLate ? 'Anda Hadir Terlambat' : 'Anda Hadir Tepat Waktu';
 
-            Get.rawSnackbar(
-              message: message,
-              backgroundColor: ColorConstants.mainColor,
-              snackPosition: SnackPosition.BOTTOM,
-              margin: const EdgeInsets.all(16),
-              borderRadius: 8,
-              duration: const Duration(seconds: 3),
-            );
-          } else if (isMockLocation.value == true) {
-            Get.rawSnackbar(
-              message: 'Anda terdeteksi menggunakan fake GPS',
-              backgroundColor: ColorConstants.redColor,
-              snackPosition: SnackPosition.BOTTOM,
-              margin: const EdgeInsets.all(16),
-              borderRadius: 8,
-              duration: const Duration(seconds: 3),
-            );
+              Get.rawSnackbar(
+                message: message,
+                backgroundColor: ColorConstants.mainColor,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(16),
+                borderRadius: 8,
+                duration: const Duration(seconds: 3),
+              );
+            } else if (isMockLocation.value == true) {
+              Get.rawSnackbar(
+                message: 'Anda terdeteksi menggunakan fake GPS',
+                backgroundColor: ColorConstants.redColor,
+                snackPosition: SnackPosition.BOTTOM,
+                margin: const EdgeInsets.all(16),
+                borderRadius: 8,
+                duration: const Duration(seconds: 3),
+              );
+            }
           }
         }
       } catch (e) {
