@@ -118,7 +118,7 @@ class HomeView extends GetView<HomeController> {
                                                         ),
                                                       )
                                                     : Image.network(
-                                                        'http://12.12.12.6:8000/storage/${state.data?.user?.profilePhotoPath}',
+                                                        'https://sumpena.my.id/storage/${state.data?.user?.profilePhotoPath}',
                                                         fit: BoxFit.cover,
                                                       ),
                                               ),

@@ -15,60 +15,62 @@ class UserModel {
         code: json["code"],
         status: json["status"],
         message: json["message"],
-        data: json["data"] == null ? null : Data.fromJson(json["data"]),
+        data: Data.fromJson(json["data"]),
       );
 }
 
 class Data {
-  User? user;
-  List<Presence>? presences;
-  List<dynamic>? leaveRules;
+  User user;
+  List<Presence> presences;
+  List<dynamic> leaveRules;
 
   Data({
-    this.user,
-    this.presences,
-    this.leaveRules,
+    required this.user,
+    required this.presences,
+    required this.leaveRules,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        user: json["user"] == null ? null : User.fromJson(json["user"]),
-        presences: json["presences"] == null
-            ? []
-            : List<Presence>.from(
-                json["presences"]!.map((x) => Presence.fromJson(x))),
-        leaveRules: json["leaveRules"] == null
-            ? []
-            : List<dynamic>.from(json["leaveRules"]!.map((x) => x)),
+        user: User.fromJson(json["user"]),
+        presences: List<Presence>.from(
+            json["presences"].map((x) => Presence.fromJson(x))),
+        leaveRules: List<dynamic>.from(json["leaveRules"].map((x) => x)),
       );
+
+  Map<String, dynamic> toJson() => {
+        "user": user.toJson(),
+        "presences": List<dynamic>.from(presences.map((x) => x.toJson())),
+        "leaveRules": List<dynamic>.from(leaveRules.map((x) => x)),
+      };
 }
 
 class Presence {
-  int? id;
-  String? nip;
-  int? officeId;
+  int id;
+  String nip;
+  int officeId;
   String? attendanceClock;
-  String? attendanceClockOut;
-  DateTime? presenceDate;
+  dynamic attendanceClockOut;
+  DateTime presenceDate;
   String? attendanceEntryStatus;
   dynamic attendanceExitStatus;
   String? entryPosition;
   double? entryDistance;
-  String? exitPosition;
-  double? exitDistance;
+  dynamic exitPosition;
+  dynamic exitDistance;
 
   Presence({
-    this.id,
-    this.nip,
-    this.officeId,
-    this.attendanceClock,
-    this.attendanceClockOut,
-    this.presenceDate,
-    this.attendanceEntryStatus,
-    this.attendanceExitStatus,
-    this.entryPosition,
-    this.entryDistance,
-    this.exitPosition,
-    this.exitDistance,
+    required this.id,
+    required this.nip,
+    required this.officeId,
+    required this.attendanceClock,
+    required this.attendanceClockOut,
+    required this.presenceDate,
+    required this.attendanceEntryStatus,
+    required this.attendanceExitStatus,
+    required this.entryPosition,
+    required this.entryDistance,
+    required this.exitPosition,
+    required this.exitDistance,
   });
 
   factory Presence.fromJson(Map<String, dynamic> json) => Presence(
@@ -77,9 +79,7 @@ class Presence {
         officeId: json["office_id"],
         attendanceClock: json["attendance_clock"],
         attendanceClockOut: json["attendance_clock_out"],
-        presenceDate: json["presence_date"] == null
-            ? null
-            : DateTime.parse(json["presence_date"]),
+        presenceDate: DateTime.parse(json["presence_date"]),
         attendanceEntryStatus: json["attendance_entry_status"],
         attendanceExitStatus: json["attendance_exit_status"],
         entryPosition: json["entry_position"],
@@ -87,27 +87,43 @@ class Presence {
         exitPosition: json["exit_position"],
         exitDistance: json["exit_distance"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "nip": nip,
+        "office_id": officeId,
+        "attendance_clock": attendanceClock,
+        "attendance_clock_out": attendanceClockOut,
+        "presence_date":
+            "${presenceDate.year.toString().padLeft(4, '0')}-${presenceDate.month.toString().padLeft(2, '0')}-${presenceDate.day.toString().padLeft(2, '0')}",
+        "attendance_entry_status": attendanceEntryStatus,
+        "attendance_exit_status": attendanceExitStatus,
+        "entry_position": entryPosition,
+        "entry_distance": entryDistance,
+        "exit_position": exitPosition,
+        "exit_distance": exitDistance,
+      };
 }
 
 class User {
-  String? nip;
-  String? name;
-  String? position;
-  String? phoneNumber;
+  String nip;
+  String name;
+  String position;
+  String phoneNumber;
   dynamic profilePhotoPath;
-  String? deviceId;
-  int? officeId;
-  Office? office;
+  String deviceId;
+  int officeId;
+  Office office;
 
   User({
-    this.nip,
-    this.name,
-    this.position,
-    this.phoneNumber,
-    this.profilePhotoPath,
-    this.deviceId,
-    this.officeId,
-    this.office,
+    required this.nip,
+    required this.name,
+    required this.position,
+    required this.phoneNumber,
+    required this.profilePhotoPath,
+    required this.deviceId,
+    required this.officeId,
+    required this.office,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -117,46 +133,70 @@ class User {
         phoneNumber: json["phone_number"],
         profilePhotoPath: json["profile_photo_path"],
         deviceId: json["device_id"],
-        officeId: json["office_id"],
-        office: json["office"] == null ? null : Office.fromJson(json["office"]),
+        officeId: int.parse(json["office_id"]),
+        office: Office.fromJson(json["office"]),
       );
+
+  Map<String, dynamic> toJson() => {
+        "nip": nip,
+        "name": name,
+        "position": position,
+        "phone_number": phoneNumber,
+        "profile_photo_path": profilePhotoPath,
+        "device_id": deviceId,
+        "office_id": officeId,
+        "office": office.toJson(),
+      };
 }
 
 class Office {
-  int? id;
-  String? name;
-  String? address;
-  double? latitude;
-  double? longitude;
-  double? radius;
-  String? startWork;
-  String? startBreak;
-  String? lateTolerance;
-  String? endWork;
+  int id;
+  String name;
+  String address;
+  double latitude;
+  double longitude;
+  double radius;
+  String startWork;
+  String startBreak;
+  String lateTolerance;
+  String endWork;
 
   Office({
-    this.id,
-    this.name,
-    this.address,
-    this.latitude,
-    this.longitude,
-    this.radius,
-    this.startWork,
-    this.startBreak,
-    this.lateTolerance,
-    this.endWork,
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+    required this.radius,
+    required this.startWork,
+    required this.startBreak,
+    required this.lateTolerance,
+    required this.endWork,
   });
 
   factory Office.fromJson(Map<String, dynamic> json) => Office(
         id: json["id"],
         name: json["name"],
         address: json["address"],
-        latitude: json["latitude"]?.toDouble(),
-        longitude: json["longitude"]?.toDouble(),
-        radius: json["radius"]?.toDouble(),
+        latitude: double.parse(json["latitude"]),
+        longitude: double.parse(json["longitude"]),
+        radius: double.parse(json["radius"]),
         startWork: json["start_work"],
         startBreak: json["start_break"],
         lateTolerance: json["late_tolerance"],
         endWork: json["end_work"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "address": address,
+        "latitude": latitude,
+        "longitude": longitude,
+        "radius": radius,
+        "start_work": startWork,
+        "start_break": startBreak,
+        "late_tolerance": lateTolerance,
+        "end_work": endWork,
+      };
 }

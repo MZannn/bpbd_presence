@@ -14,7 +14,6 @@ class HomeProvider extends GetConnect {
     );
     log('Response: $response');
     return UserModel.fromJson(response);
-    // return response;
   }
 
   Future<UserModel?> presenceIn(int id, Map<String, dynamic> body) async {

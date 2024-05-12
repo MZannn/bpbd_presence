@@ -1,4 +1,4 @@
 class ApiConstant {
-  static const baseUrl = 'http://192.168.18.153:8000';
+  static const baseUrl = 'https://sumpena.my.id';
   static const apiUrl = '$baseUrl/api';
 }
