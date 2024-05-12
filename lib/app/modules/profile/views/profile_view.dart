@@ -85,7 +85,7 @@ class ProfileView extends GetView<ProfileController> {
                                           ),
                                         )
                                       : Image.network(
-                                          "https://sumpena.my.id/storage/${user?.data?.user?.profilePhotoPath}",
+                                          "${user?.data?.user?.profilePhotoPath}",
                                           fit: BoxFit.cover,
                                         ),
                                 ),

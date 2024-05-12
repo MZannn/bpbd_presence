@@ -71,7 +71,7 @@ class EditProfileView extends GetView<EditProfileController> {
                                             ),
                                           )
                                         : Image.network(
-                                            "https://sumpena.my.id/storage/${Get.arguments['profilePhotoPath']}",
+                                            "${Get.arguments['profilePhotoPath']}",
                                             fit: BoxFit.cover,
                                           ),
                               ),

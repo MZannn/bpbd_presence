@@ -218,7 +218,8 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       final user = await _homeProvider.getUsers();
       change(user, status: RxStatus.success());
       this.user = user;
-      if (user!.data?.user?.deviceId == null && token != null) {
+      log('user ${user?.data?.user.deviceId}');
+      if (user!.data?.user.deviceId == null && token != null) {
         await _homeProvider.logout();
         change(null, status: RxStatus.error('Device Id Tidak Ditemukan'));
         prefs.clear();

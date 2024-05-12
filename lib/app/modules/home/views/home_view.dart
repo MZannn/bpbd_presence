@@ -118,7 +118,7 @@ class HomeView extends GetView<HomeController> {
                                                         ),
                                                       )
                                                     : Image.network(
-                                                        'https://sumpena.my.id/storage/${state.data?.user?.profilePhotoPath}',
+                                                        '${state.data?.user?.profilePhotoPath}',
                                                         fit: BoxFit.cover,
                                                       ),
                                               ),
@@ -894,24 +894,35 @@ class HomeView extends GetView<HomeController> {
       floatingActionButton: Obx(() {
         if (controller.isLoading.value == true) {
           return const SizedBox();
+        } else {
+          return controller.user?.data?.presences.isEmpty == true
+              ? FloatingActionButton(
+                  onPressed: () async {
+                    await controller.presenceOutChecker();
+                  },
+                  elevation: 0,
+                  backgroundColor: ColorConstants.greyColor,
+                  child: SvgPicture.asset("assets/icons/presence_disabled.svg"),
+                )
+              : FloatingActionButton(
+                  onPressed: () async {
+                    await controller.presenceOutChecker();
+                  },
+                  elevation: 0,
+                  backgroundColor:
+                      controller.now.value.isAfter(controller.clockOut) &&
+                              controller.user?.data?.presences.first
+                                      .attendanceEntryStatus !=
+                                  null &&
+                              controller.user?.data?.presences.first
+                                      .attendanceExitStatus ==
+                                  null
+                          ? ColorConstants.mainColor
+                          : ColorConstants.greyColor,
+                  child: SvgPicture.asset(
+                      "assets/icons/${controller.now.value.isAfter(controller.clockOut) && controller.user?.data?.presences?.first.attendanceEntryStatus != null && controller.user?.data?.presences?.first.attendanceExitStatus == null ? 'presence.svg' : 'presence_disabled.svg'}"),
+                );
         }
-        return FloatingActionButton(
-          onPressed: () async {
-            await controller.presenceOutChecker();
-          },
-          elevation: 0,
-          backgroundColor: controller.now.value.isAfter(controller.clockOut) &&
-                  controller
-                          .user?.data?.presences?.first.attendanceEntryStatus !=
-                      null &&
-                  controller
-                          .user?.data?.presences?.first.attendanceExitStatus ==
-                      null
-              ? ColorConstants.mainColor
-              : ColorConstants.greyColor,
-          child: SvgPicture.asset(
-              "assets/icons/${controller.now.value.isAfter(controller.clockOut) && controller.user?.data?.presences?.first.attendanceEntryStatus != null && controller.user?.data?.presences?.first.attendanceExitStatus == null ? 'presence.svg' : 'presence_disabled.svg'}"),
-        );
       }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
