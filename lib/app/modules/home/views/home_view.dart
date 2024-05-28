@@ -1,12 +1,16 @@
+import 'dart:developer';
+
 import 'package:bpbd_presence/app/modules/profile/views/profile_view.dart';
 import 'package:bpbd_presence/app/routes/app_pages.dart';
 import 'package:bpbd_presence/app/themes/color_constants.dart';
+import 'package:bpbd_presence/app/themes/constants.dart';
 import 'package:bpbd_presence/app/themes/themes.dart';
 import 'package:bpbd_presence/app/widgets/button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -171,10 +175,10 @@ class HomeView extends GetView<HomeController> {
                                             Marker(
                                               markerId: const MarkerId("BPBD"),
                                               position: LatLng(
-                                                state.data!.user!.office!
-                                                    .latitude!,
-                                                state.data!.user!.office!
-                                                    .longitude!,
+                                                double.parse(state.data!.user!
+                                                    .office!.latitude!),
+                                                double.parse(state.data!.user!
+                                                    .office!.longitude!),
                                               ),
                                             ),
                                           },
@@ -184,12 +188,12 @@ class HomeView extends GetView<HomeController> {
                                               circleId:
                                                   const CircleId("circle"),
                                               center: LatLng(
-                                                  state.data!.user!.office!
-                                                      .latitude!,
-                                                  state.data!.user!.office!
-                                                      .longitude!),
-                                              radius: state.data!.user!.office!
-                                                      .radius! *
+                                                  double.parse(state.data!.user!
+                                                      .office!.latitude!),
+                                                  double.parse(state.data!.user!
+                                                      .office!.longitude!)),
+                                              radius: double.parse(state.data!
+                                                      .user!.office!.radius!) *
                                                   1000, // convert ke meter
                                               strokeWidth: 1,
                                               strokeColor:
@@ -200,8 +204,8 @@ class HomeView extends GetView<HomeController> {
                                             ),
                                           },
                                           onCameraMove: (position) {
-                                            position =
-                                                controller.cameraPosition;
+                                            controller.cameraPosition =
+                                                position;
                                           },
                                           initialCameraPosition:
                                               controller.cameraPosition,
@@ -214,20 +218,14 @@ class HomeView extends GetView<HomeController> {
                                                 () => ScaleGestureRecognizer()))
                                             ..add(Factory<TapGestureRecognizer>(
                                                 () => TapGestureRecognizer()))
-                                            ..add(
-                                              Factory<
-                                                  VerticalDragGestureRecognizer>(
+                                            ..add(Factory<
+                                                    VerticalDragGestureRecognizer>(
                                                 () =>
-                                                    VerticalDragGestureRecognizer(),
-                                              ),
-                                            )
-                                            ..add(
-                                              Factory<
-                                                  HorizontalDragGestureRecognizer>(
+                                                    VerticalDragGestureRecognizer()))
+                                            ..add(Factory<
+                                                    HorizontalDragGestureRecognizer>(
                                                 () =>
-                                                    HorizontalDragGestureRecognizer(),
-                                              ),
-                                            ),
+                                                    HorizontalDragGestureRecognizer())),
                                           myLocationEnabled: true,
                                         ),
                                       ),
@@ -895,7 +893,7 @@ class HomeView extends GetView<HomeController> {
         if (controller.isLoading.value == true) {
           return const SizedBox();
         } else {
-          return controller.user?.data?.presences.isEmpty == true
+          return controller.user?.data?.presences?.isEmpty == true
               ? FloatingActionButton(
                   onPressed: () async {
                     await controller.presenceOutChecker();
@@ -906,21 +904,26 @@ class HomeView extends GetView<HomeController> {
                 )
               : FloatingActionButton(
                   onPressed: () async {
-                    await controller.presenceOutChecker();
+                    controller.presence();
                   },
                   elevation: 0,
-                  backgroundColor:
-                      controller.now.value.isAfter(controller.clockOut) &&
-                              controller.user?.data?.presences.first
+                  backgroundColor: controller.state?.data?.presences?.first
+                                  .attendanceClock ==
+                              null &&
+                          controller.now.value.isBefore(controller.maximalLate)
+                      ? ColorConstants.mainColor
+                      : controller.now.value
+                                  .isAfter(controller.clockOut) &&
+                              controller.user?.data?.presences?.first
                                       .attendanceEntryStatus !=
                                   null &&
-                              controller.user?.data?.presences.first
+                              controller.user?.data?.presences?.first
                                       .attendanceExitStatus ==
                                   null
                           ? ColorConstants.mainColor
                           : ColorConstants.greyColor,
                   child: SvgPicture.asset(
-                      "assets/icons/${controller.now.value.isAfter(controller.clockOut) && controller.user?.data?.presences?.first.attendanceEntryStatus != null && controller.user?.data?.presences?.first.attendanceExitStatus == null ? 'presence.svg' : 'presence_disabled.svg'}"),
+                      "assets/icons/${controller.state?.data?.presences?.first.attendanceClock == null && controller.now.value.isBefore(controller.maximalLate) ? 'presence.svg' : controller.state?.data?.presences?.first.attendanceClockOut != null ? 'presence_disabled.svg' : controller.state?.data?.presences?.first.attendanceClock != null && controller.now.value.isAfter(controller.clockOut) && controller.user?.data?.presences?.first.attendanceClockOut == null ? 'presence.svg' : 'presence_disabled.svg'}"),
                 );
         }
       }),

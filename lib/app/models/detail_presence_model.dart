@@ -52,16 +52,16 @@ class DetailPresence {
 
   int? id;
   String? nip;
-  int? officeId;
+  String? officeId;
   String? attendanceClock;
   String? attendanceClockOut;
   DateTime? presenceDate;
   String? attendanceEntryStatus;
   String? attendanceExitStatus;
   String? entryPosition;
-  double? entryDistance;
+  String? entryDistance;
   String? exitPosition;
-  double? exitDistance;
+  String? exitDistance;
 
   factory DetailPresence.fromJson(Map<String, dynamic> json) => DetailPresence(
         id: json["id"],

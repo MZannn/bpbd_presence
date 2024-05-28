@@ -10,8 +10,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class BusinessTripController extends GetxController {
-  BusinessTripController(this._businessTripProvider);
-  final BusinessTripProvider _businessTripProvider;
+  BusinessTripController(this._bussinessTripProvider);
+  final BusinessTripProvider _bussinessTripProvider;
   late TextEditingController startDateController;
   late TextEditingController endDateController;
   RxString fileName = ''.obs;
@@ -67,7 +67,7 @@ class BusinessTripController extends GetxController {
   }
 
   Future<DateTime> fetchTime() async {
-    var response = await _businessTripProvider.fetchTime();
+    var response = await _bussinessTripProvider.fetchTime();
     var dateTimeString = response['dateTime'];
     final formattedDateTimeString = dateTimeString.split('.')[0];
     final dateTime = DateTime.parse(formattedDateTimeString);
@@ -133,7 +133,7 @@ class BusinessTripController extends GetxController {
       };
 
       final response =
-          await _businessTripProvider.sendBusinessTrip(body, file);
+          await _bussinessTripProvider.sendBusinessTrip(body, file);
       if (DateTime.parse(startDateController.text).weekday ==
               DateTime.saturday ||
           DateTime.parse(startDateController.text).weekday == DateTime.sunday ||

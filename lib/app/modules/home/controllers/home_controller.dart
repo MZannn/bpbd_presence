@@ -69,6 +69,8 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       );
       log('latitude ${latitude.value}');
       log('longitude ${longitude.value}');
+      log('timenow ${now.value}');
+      log("ABSEN");
       try {
         final isPresenceEmpty = state?.data?.presences?.isEmpty ?? true;
         if (isPresenceEmpty) {
@@ -77,51 +79,11 @@ class HomeController extends GetxController with StateMixin<UserModel> {
           final userPresence = state?.data?.presences?.first;
           log('${userPresence?.attendanceClock == null}');
           if (userPresence?.attendanceClock == null) {
-            final distance = sphericalLawOfCosines(
-                state!.data!.user!.office!.latitude!,
-                state!.data!.user!.office!.longitude!,
-                position.latitude,
-                position.longitude);
-            log('distance $distance');
-            log('radius ${state!.data!.user!.office!.radius!}');
-            log('ini ${distance <= state!.data!.user!.office!.radius!}');
-            final isLate = now.value.isAfter(maximalLate);
-            final entryStatus = isLate ? 'TERLAMBAT' : 'HADIR';
-            if (distance <= state!.data!.user!.office!.radius! &&
-                isMockLocation.value == false &&
-                now.value.isAfter(attendanceStartHour) &&
-                now.value.isBefore(maximalLate)) {
-              final presence = await sendAttendanceToServer(
-                  userPresence!.id!, position, entryStatus);
-              change(
-                presence,
-                status: RxStatus.success(),
-              );
-              final message =
-                  isLate ? 'Anda Hadir Terlambat' : 'Anda Hadir Tepat Waktu';
-
-              Get.rawSnackbar(
-                message: message,
-                backgroundColor: ColorConstants.mainColor,
-                snackPosition: SnackPosition.BOTTOM,
-                margin: const EdgeInsets.all(16),
-                borderRadius: 8,
-                duration: const Duration(seconds: 3),
-              );
-            } else if (isMockLocation.value == true) {
-              Get.rawSnackbar(
-                message: 'Anda terdeteksi menggunakan fake GPS',
-                backgroundColor: ColorConstants.redColor,
-                snackPosition: SnackPosition.BOTTOM,
-                margin: const EdgeInsets.all(16),
-                borderRadius: 8,
-                duration: const Duration(seconds: 3),
-              );
-            }
+            presence();
           }
         }
       } catch (e) {
-        change(null, status: RxStatus.error(e.toString()));
+        log(e.toString());
       }
     });
   }
@@ -145,14 +107,11 @@ class HomeController extends GetxController with StateMixin<UserModel> {
 
   // send attendance in to server
   Future sendAttendanceToServer(
-      int id, Position position, String entryStatus) async {
+      int id, double latitude, double longitude, String entryStatus) async {
     final attendanceClock = DateFormat('HH:mm:ss').format(now.value);
-    final entryPosition = "${position.latitude}, ${position.longitude}";
+    final entryPosition = "$latitude, $longitude";
     final entryDistance = sphericalLawOfCosines(
-        state!.data!.user!.office!.latitude!,
-        state!.data!.user!.office!.longitude!,
-        position.latitude,
-        position.longitude);
+        Constants.latitude, Constants.longitude, latitude, longitude);
 
     final presence = await _homeProvider.presenceIn(
       id,
@@ -163,17 +122,18 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         'attendance_entry_status': entryStatus,
       },
     );
+    if (presence!.code == 200) {
+      var user = getUser();
+      change(user, status: RxStatus.success());
+    }
     return presence;
   }
 
   // send attendance out to server
   presenceOut() async {
     final userPresence = state?.data?.presences?.first;
-    final exitDistance = sphericalLawOfCosines(
-        state!.data!.user!.office!.latitude!,
-        state!.data!.user!.office!.longitude!,
-        latitude.value,
-        longitude.value);
+    final exitDistance = sphericalLawOfCosines(Constants.latitude,
+        Constants.longitude, latitude.value, longitude.value);
     var body = {
       "attendance_clock_out": DateFormat('HH:mm:ss').format(now.value),
       "attendance_exit_status": "HADIR",
@@ -185,7 +145,10 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         change(null, status: RxStatus.loading());
         final presence =
             await _homeProvider.presenceOut(userPresence!.id!, body);
-        change(presence, status: RxStatus.success());
+        if (presence!.code == 200) {
+          var user = getUser();
+          change(user, status: RxStatus.success());
+        }
         Get.rawSnackbar(
           message: 'Presensi keluar berhasil',
           backgroundColor: ColorConstants.mainColor,
@@ -205,7 +168,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         );
       }
     } catch (e) {
-      change(null, status: RxStatus.error(e.toString()));
+      log(e.toString());
     }
   }
 
@@ -216,12 +179,17 @@ class HomeController extends GetxController with StateMixin<UserModel> {
     String? token = prefs.getString('token');
     try {
       final user = await _homeProvider.getUsers();
+      if (user?.data?.user?.office != null) {
+        Constants.latitude = double.parse(user!.data!.user!.office!.latitude!);
+        Constants.longitude = double.parse(user.data!.user!.office!.longitude!);
+        Constants.maxAttendanceDistance =
+            double.parse(user.data!.user!.office!.radius!);
+      }
       change(user, status: RxStatus.success());
       this.user = user;
-      log('user ${user?.data?.user.deviceId}');
-      if (user!.data?.user.deviceId == null && token != null) {
+      log('user ${user?.data?.user!.deviceId}');
+      if (user?.data?.user?.deviceId == null && token != null) {
         await _homeProvider.logout();
-        change(null, status: RxStatus.error('Device Id Tidak Ditemukan'));
         prefs.clear();
         Get.dialog(
           AlertDialog(
@@ -267,8 +235,8 @@ class HomeController extends GetxController with StateMixin<UserModel> {
 
   // presence in checker
   Future<void> presenceOutChecker() async {
-    var distance = sphericalLawOfCosines(state!.data!.user!.office!.latitude!,
-        state!.data!.user!.office!.longitude!, latitude.value, longitude.value);
+    var distance = sphericalLawOfCosines(Constants.latitude,
+        Constants.longitude, latitude.value, longitude.value);
     if (now.value.weekday == DateTime.saturday ||
         now.value.weekday == DateTime.sunday) {
       Get.rawSnackbar(
@@ -319,7 +287,7 @@ class HomeController extends GetxController with StateMixin<UserModel> {
       );
     } else if (isMockLocation.value == false &&
         now.value.isAfter(clockOut) &&
-        distance <= state!.data!.user!.office!.radius!) {
+        distance <= Constants.maxAttendanceDistance) {
       await presenceOut();
     } else {
       Get.rawSnackbar(
@@ -361,25 +329,156 @@ class HomeController extends GetxController with StateMixin<UserModel> {
         endHour.hour, endHour.minute, endHour.second);
   }
 
+  Future<void> presenceInChecker() async {
+    var distance = sphericalLawOfCosines(Constants.latitude,
+        Constants.longitude, latitude.value, longitude.value);
+    if (isMockLocation.value == false &&
+        now.value.isAfter(attendanceStartHour) &&
+        now.value.isBefore(maximalLate) &&
+        distance <= Constants.maxAttendanceDistance &&
+        state?.data?.presences?.first.attendanceClock == null) {
+      var isLate = now.value.isAfter(maximalLate) ? 'TERLAMBAT' : 'HADIR';
+      sendAttendanceToServer(state!.data!.presences!.first.id!, latitude.value,
+          longitude.value, isLate);
+    } else {
+      Get.rawSnackbar(
+        message: 'Anda Berada Diluar Zona Presensi',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    }
+  }
+
+  void presence() async {
+    var distance = sphericalLawOfCosines(Constants.latitude,
+        Constants.longitude, latitude.value, longitude.value);
+    if (isMockLocation.value == false &&
+        now.value.isAfter(attendanceStartHour) &&
+        now.value.isBefore(maximalLate) &&
+        distance <= Constants.maxAttendanceDistance &&
+        state?.data?.presences?.first.attendanceClock == null) {
+      await presenceInChecker();
+    } else if (state?.data?.presences?.first.attendanceClock != null &&
+        now.value.isAfter(clockOut) &&
+        state?.data?.presences?.first.attendanceClockOut == null &&
+        distance <= Constants.maxAttendanceDistance &&
+        isMockLocation.value == false) {
+      await presenceOutChecker();
+    } else if (now.value.weekday == DateTime.saturday ||
+        now.value.weekday == DateTime.sunday) {
+      Get.rawSnackbar(
+        message: 'Anda tidak dapat melakukan presensi karena ini hari libur',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (state?.data?.presences?.first.attendanceClock == null &&
+        now.value.isBefore(attendanceStartHour)) {
+      final dateFormat = DateFormat('HH:mm').format(attendanceStartHour);
+      Get.rawSnackbar(
+        message:
+            'Anda tidak dapat melakukan presensi masuk karena belum jam $dateFormat',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (state?.data?.presences?.first.attendanceClock == null &&
+        now.value.isAfter(maximalLate) &&
+        now.value.isBefore(clockOut)) {
+      final dateFormat = DateFormat('HH:mm').format(maximalLate);
+      Get.rawSnackbar(
+        message:
+            'Anda tidak dapat melakukan presensi masuk karena sudah melewati jam toleransi keterlambatan pada jam $dateFormat',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (state?.data?.presences?.first.attendanceClock == null &&
+        now.value.isAfter(maximalLate)) {
+      final dateFormat = DateFormat('HH:mm').format(maximalLate);
+      Get.rawSnackbar(
+        message:
+            'Anda tidak dapat melakukan presensi masuk karena sudah melewati jam toleransi keterlambatan pada jam $dateFormat',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (isMockLocation.value == true) {
+      Get.rawSnackbar(
+        message: 'Anda Terdeteksi Menggunakan Fake GPS',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (state?.data?.presences?.first.attendanceEntryStatus == null) {
+      Get.rawSnackbar(
+        message: 'Anda belum melakukan presensi masuk',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (state?.data?.presences?.first.attendanceExitStatus != null) {
+      Get.rawSnackbar(
+        message: 'Anda sudah melakukan presensi keluar',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } else if (state?.data?.presences?.first.attendanceClock != null &&
+        now.value.isBefore(clockOut)) {
+      final dateFormat = DateFormat('HH:mm').format(clockOut);
+      Get.rawSnackbar(
+        message:
+            'Anda tidak dapat melakukan presensi keluar karena belum jam $dateFormat',
+        backgroundColor: ColorConstants.redColor,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    }
+  }
+
   @override
   void onInit() async {
     isLoading.value = true;
-    await getUser();
-
-    now.value = await fetchTime();
-    log("now ${now.value}");
-    await hourAttendance();
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      now.value = now.value.add(const Duration(seconds: 1));
-    });
-    checkLocationChanges();
-    await determinePosition().then((value) {
-      cameraPosition = CameraPosition(
-        target: LatLng(value.latitude, value.longitude),
-        zoom: 14,
-      );
-    });
-    isLoading.value = false;
+    try {
+      await getUser();
+      now.value = await fetchTime();
+      log("now ${now.value}");
+      await hourAttendance();
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        now.value = now.value.add(const Duration(seconds: 1));
+      });
+      await checkLocationChanges();
+      await determinePosition().then((value) {
+        cameraPosition = CameraPosition(
+          target: LatLng(value.latitude, value.longitude),
+          zoom: 14,
+        );
+      });
+    } catch (e) {
+      log("Error during initialization: $e");
+    } finally {
+      isLoading.value = false;
+    }
     super.onInit();
   }
 }

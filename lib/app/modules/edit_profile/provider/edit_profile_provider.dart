@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:bpbd_presence/app/models/user_model.dart';
@@ -17,7 +18,7 @@ class EditProfileProvider {
     if (file != null) {
       form.files.add(
         MapEntry(
-          'file',
+          'profile_photo_path',
           MultipartFile(
             file.path,
             filename: basename(file.path),
@@ -30,6 +31,7 @@ class EditProfileProvider {
       body: form,
       requiresAuthToken: true,
     );
+    log('Response: $response');
     return UserModel.fromJson(response);
   }
 }
